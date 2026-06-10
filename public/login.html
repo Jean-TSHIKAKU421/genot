@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Gestion Notes</title>
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Background Animé -->
+    <div class="bg-particles">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- Container Principal -->
+    <div class="login-container">
+        <div class="login-card">
+            
+            <!-- En-tête -->
+            <div class="login-header">
+                <div class="logo-wrapper">
+                    <img src="assets/images/logo.png" alt="GeNot" class="logo-img">
+                </div>
+                <h1>Content de vous revoir</h1>
+                <p>Connectez-vous pour accéder à vos cours et notes</p>
+            </div>
+
+            <!-- Formulaire -->
+            <form id="login-form" novalidate>
+                
+                <!-- Matricule -->
+                <div class="form-group">
+                    <label class="form-label" for="matricule">Matricule <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-card input-icon"></i>
+                        <input type="text" id="matricule" placeholder="Votre matricule" required autocomplete="username">
+                    </div>
+                </div>
+
+                <!-- Mot de passe -->
+                <div class="form-group">
+                    <label class="form-label" for="password">Mot de passe <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password" id="password" placeholder="Votre mot de passe" required autocomplete="current-password">
+                        <button type="button" class="toggle-password" data-target="password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Options -->
+                <div class="remember-section">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        <span class="terms-text">Se souvenir de moi</span>
+                    </label>
+                    <a href="#" class="forgot-link" onclick="openResetModal()">Mot de passe oublié ?</a>
+                </div>
+
+                <!-- Messages -->
+                <div id="errorMessage" class="alert alert-error"></div>
+                <div id="successMessage" class="alert alert-success"></div>
+
+                <!-- Bouton -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-submit" id="submitBtn">
+                        <span class="btn-text">
+                            <i class="fas fa-sign-in-alt"></i> Se connecter
+                        </span>
+                    </button>
+                </div>
+
+                <p class="form-message" id="form-message"></p>
+
+            </form>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <p>Pas encore de compte ? <a href="register.html">Créer un compte</a></p>
+                <p class="copyright">&copy; 2026 Gestion Notes. Tous droits réservés.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MODAL RÉINITIALISATION ============ -->
+    <div id="resetModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            
+            <!-- Étape 1 : Questions de sécurité -->
+            <div id="resetStep1" class="modal-step active">
+                <div class="modal-header">
+                    <span class="modal-icon">🔐</span>
+                    <h2>Réinitialiser le mot de passe</h2>
+                    <p>Répondez à vos questions de sécurité</p>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="resetMatricule">Matricule <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-id-card input-icon"></i>
+                            <input type="text" id="resetMatricule" placeholder="Votre matricule">
+                        </div>
+                    </div>
+                    
+                    <div id="securityQuestions" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label" id="question1Label"></label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-key input-icon"></i>
+                                <input type="text" id="resetReponse1" placeholder="Votre réponse">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" id="question2Label"></label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-key input-icon"></i>
+                                <input type="text" id="resetReponse2" placeholder="Votre réponse">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="resetMessage1" class="alert alert-error"></div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeResetModal()">Annuler</button>
+                    <button type="button" id="loadQuestionsBtn" class="btn btn-submit" onclick="loadSecurityQuestions()">
+                        <i class="fas fa-search"></i> Chercher
+                    </button>
+                    <button type="button" id="verifyAnswersBtn" class="btn btn-submit" style="display: none;" onclick="verifyAnswers()">
+                        <i class="fas fa-check"></i> Vérifier
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Étape 2 : Nouveau mot de passe -->
+            <div id="resetStep2" class="modal-step" style="display: none;">
+                <div class="modal-header">
+                    <span class="modal-icon">🔑</span>
+                    <h2>Nouveau mot de passe</h2>
+                    <p>Choisissez un nouveau mot de passe sécurisé</p>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="newPassword">Nouveau mot de passe <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="newPassword" placeholder="Minimum 8 caractères" minlength="8">
+                            <button type="button" class="toggle-password" data-target="newPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="confirmNewPassword">Confirmer le mot de passe <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-check-double input-icon"></i>
+                            <input type="password" id="confirmNewPassword" placeholder="Répétez le mot de passe">
+                            <button type="button" class="toggle-password" data-target="confirmNewPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="resetMessage2" class="alert alert-error"></div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeResetModal()">Annuler</button>
+                    <button type="button" class="btn btn-submit" onclick="resetPassword()">
+                        <i class="fas fa-save"></i> Enregistrer
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Étape 3 : Succès -->
+            <div id="resetStep3" class="modal-step" style="display: none;">
+                <div class="modal-header">
+                    <span class="modal-icon success-icon">✅</span>
+                    <h2>Mot de passe réinitialisé</h2>
+                    <p>Vous pouvez maintenant vous connecter</p>
+                </div>
+                
+                <div class="modal-body" style="text-align: center;">
+                    <p style="color: var(--gray); margin-bottom: 20px;">
+                        Votre mot de passe a été réinitialisé avec succès.
+                    </p>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-submit" onclick="closeResetModal()">
+                        <i class="fas fa-sign-in-alt"></i> Aller à la connexion
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- Boutons scroll -->
+    <div class="scroll-nav">
+        <button class="scroll-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Haut de page">
+            <i class="fas fa-chevron-up"></i>
+        </button>
+        <button class="scroll-btn" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})" title="Bas de page">
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/theme.js"></script>
+</body>
+</html>

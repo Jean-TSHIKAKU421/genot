@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - GeNot</title>
+    
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+<body>
+    <div class="bg-particles">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <div class="home-container">
+        <!-- Header -->
+        <header class="home-header">
+            <div class="header-top">
+                <div class="header-logo">
+                    <div class="logo-wrapper">
+                        <img src="assets/images/logo.png" alt="GeNot" class="logo-img">
+                    </div>
+                </div>
+                
+                <!-- Nom de l'utilisateur au centre -->
+                <div class="header-user-name" id="header-user-name"></div>
+                
+                <div class="header-profile" id="header-profile" onclick="window.location.href='/settings'"></div>
+            </div>
+            
+            <div class="header-actions">
+                <a href="/settings" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-cog"></i> <span class="btn-label">Paramètres</span>
+                </a>
+                <a href="/trash" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-trash-alt"></i> <span class="btn-label">Corbeille</span>
+                </a>
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <button class="btn btn-secondary btn-sm" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> <span class="btn-label">Quitter</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Message de bienvenue temporaire -->
+        <div id="welcomeToast" class="welcome-toast">
+            <span class="toast-icon"></span>
+            <span class="toast-text" id="toastText"></span>
+        </div>
+
+        <h2 class="home-title">Mes Cours</h2>
+
+        <!-- Barre de recherche -->
+        <div class="search-bar-home">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="homeSearchInput" placeholder="🔍 Rechercher un cours par titre, professeur ou description...">
+            <button class="btn-search-clear" id="homeClearSearch" style="display: none;" onclick="clearHomeSearch()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div id="no-courses" class="empty-state" style="display: none;">
+            <div class="empty-icon">📖</div>
+            <h2>Aucun cours pour le moment</h2>
+            <p>Commencez par ajouter votre premier cours !</p>
+            <button onclick="showAddCourseModal()" class="btn btn-submit btn-large">
+                <i class="fas fa-plus"></i> Ajouter un cours
+            </button>
+        </div>
+
+        <div id="courses-grid" class="courses-grid"></div>
+
+        <div id="add-course-bottom" class="add-course-section">
+            <button onclick="showAddCourseModal()" class="btn btn-submit btn-large">
+                <i class="fas fa-plus"></i> Ajouter un cours
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Ajouter -->
+    <div id="add-course-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Ajouter un cours</h2>
+                <button class="modal-close" onclick="closeAddCourseModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-course-form">
+                    <div class="form-group">
+                        <label class="form-label">Titre du cours <span class="required">*</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-book input-icon"></i>
+                            <input type="text" id="course-title" placeholder="Titre du cours" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Professeur <span class="optional">(optionnel)</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user-tie input-icon"></i>
+                            <input type="text" id="course-professor" placeholder="Nom du professeur">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description <span class="optional">(optionnel)</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-align-left input-icon"></i>
+                            <textarea id="course-description" rows="3" placeholder="Description du cours..."></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Image <span class="optional">(optionnel)</span></label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-image input-icon"></i>
+                            <input type="file" id="course-image" accept="image/*">
+                        </div>
+                        <small class="hint">JPG, PNG, GIF, WEBP - Max 5MB</small>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddCourseModal()">Annuler</button>
+                        <button type="submit" class="btn btn-submit"><i class="fas fa-plus"></i> Ajouter</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Détail -->
+    <div id="courseDetailModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card modal-course-detail">
+            <div class="modal-header">
+                <h2 id="modalCourseTitle">Détails</h2>
+                <button class="modal-close" onclick="closeCourseDetail()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewMode">
+                    <div class="course-detail-image-wrapper">
+                        <img id="detailCourseImage" src="" class="course-detail-image">
+                        <div id="detailNoImage" class="course-detail-no-image" style="display:none;">📚</div>
+                    </div>
+                    <div class="course-detail-info">
+                        <div class="detail-row"><span class="detail-label"><i class="fas fa-book"></i> Titre</span><span class="detail-value" id="detailTitle"></span></div>
+                        <div class="detail-row"><span class="detail-label"><i class="fas fa-user-tie"></i> Professeur</span><span class="detail-value" id="detailProfessor"></span></div>
+                        <div class="detail-row"><span class="detail-label"><i class="fas fa-calendar"></i> Créé le</span><span class="detail-value" id="detailDate"></span></div>
+                        <div class="detail-row full-width"><span class="detail-label"><i class="fas fa-align-left"></i> Description</span><p class="detail-value" id="detailDescription"></p></div>
+                    </div>
+                    <div class="detail-actions">
+                        <button class="btn btn-secondary" onclick="deleteCourseFromDetail()"><i class="fas fa-trash"></i> Supprimer</button>
+                        <button class="btn btn-submit" onclick="switchToEditMode()"><i class="fas fa-edit"></i> Modifier</button>
+                    </div>
+                </div>
+                <div id="editMode" style="display:none;">
+                    <form id="editCourseForm">
+                        <div class="form-group">
+                            <label class="form-label">Titre <span class="required">*</span></label>
+                            <div class="input-wrapper"><i class="fas fa-book input-icon"></i><input type="text" id="editCourseTitle" required></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Professeur</label>
+                            <div class="input-wrapper"><i class="fas fa-user-tie input-icon"></i><input type="text" id="editProfessor"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <div class="input-wrapper"><i class="fas fa-align-left input-icon"></i><textarea id="editDescription" rows="3"></textarea></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Image</label>
+                            <div class="input-wrapper"><i class="fas fa-image input-icon"></i><input type="file" id="editCourseImage" accept="image/*"></div>
+                        </div>
+                    </form>
+                    <div class="detail-actions">
+                        <button class="btn btn-secondary" onclick="switchToViewMode()">Annuler</button>
+                        <button class="btn btn-submit" onclick="saveCourseChanges()">Enregistrer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Aide Commandes Vocales -->
+    <div id="helpModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card help-modal-card">
+            <div class="modal-header">
+                <h2>🎤 Commandes Vocales</h2>
+                <button class="modal-close" onclick="closeHelpModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body help-modal-body">
+                <p class="help-intro">Dites <strong>"GeNot"</strong> suivi de l'une de ces commandes :</p>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-book-open"></i> Ouvrir un cours</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"ouvre le cours de Python"</code></div>
+                        <div class="help-card"><code>"entre dans Langage C"</code></div>
+                        <div class="help-card"><code>"affiche le module de Maths"</code></div>
+                        <div class="help-card"><code>"je veux voir le cours d'Algorithmique"</code></div>
+                        <div class="help-card"><code>"emmène moi dans le cours de Réseau"</code></div>
+                    </div>
+                    <p class="help-variants"><strong>Variantes :</strong> ouvre, affiche, montre, entre dans, va dans, lance, démarre, accède à, dirige moi vers, conduis moi à...</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-arrow-down"></i> Défiler vers le bas</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"défile"</code> <span class="help-default">(200px)</span></div>
+                        <div class="help-card"><code>"descendre 300"</code></div>
+                        <div class="help-card"><code>"plus bas"</code></div>
+                        <div class="help-card"><code>"avance un peu"</code> <span class="help-default">(150px)</span></div>
+                        <div class="help-card"><code>"scroll beaucoup"</code> <span class="help-default">(500px)</span></div>
+                    </div>
+                    <p class="help-variants"><strong>Variantes :</strong> défile, descends, avance, continue, scroll, plus bas, vers le bas...</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-arrow-up"></i> Défiler vers le haut</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"monte"</code> <span class="help-default">(200px)</span></div>
+                        <div class="help-card"><code>"remonte 150"</code></div>
+                        <div class="help-card"><code>"plus haut"</code></div>
+                        <div class="help-card"><code>"recule un peu"</code></div>
+                    </div>
+                    <p class="help-variants"><strong>Variantes :</strong> monte, remonte, haut, plus haut, recule, reviens...</p>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-chevron-up"></i> Aller tout en haut</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"tout en haut"</code></div>
+                        <div class="help-card"><code>"sommet"</code></div>
+                        <div class="help-card"><code>"début"</code></div>
+                        <div class="help-card"><code>"retour en haut"</code></div>
+                        <div class="help-card"><code>"accueil"</code></div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-chevron-down"></i> Aller tout en bas</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"tout en bas"</code></div>
+                        <div class="help-card"><code>"fin"</code></div>
+                        <div class="help-card"><code>"pied de page"</code></div>
+                        <div class="help-card"><code>"bas de la page"</code></div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-plus-circle"></i> Ajouter un cours</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"ajoute un cours"</code></div>
+                        <div class="help-card"><code>"créer un cours"</code></div>
+                        <div class="help-card"><code>"nouveau cours"</code></div>
+                    </div>
+                </div>
+                
+                <div class="help-section">
+                    <h3><i class="fas fa-cog"></i> Navigation</h3>
+                    <div class="help-cards">
+                        <div class="help-card"><code>"paramètres"</code> / <code>"config"</code></div>
+                        <div class="help-card"><code>"corbeille"</code> / <code>"poubelle"</code></div>
+                        <div class="help-card"><code>"déconnecte"</code> / <code>"quitter"</code></div>
+                        <div class="help-card"><code>"aide"</code> / <code>"que puis-je faire"</code></div>
+                    </div>
+                </div>
+                
+                <div class="help-tip">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>Astuce :</strong> Vous pouvez dire les nombres en chiffres ("300") ou en lettres ("trois cents", "beaucoup"). Si aucun nombre n'est précisé, le défilement est de 200px par défaut.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme.js"></script>
+    <script src="js/home.js"></script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cours - GeNot</title>
+    
+    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/course.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+<body>
+    <div class="bg-particles">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <div class="course-container">
+        <header class="course-header">
+            <button class="btn-back" onclick="window.location.href='/home'"><i class="fas fa-arrow-left"></i></button>
+            <div class="course-title-area">
+                <h1 id="courseTitle">Chargement...</h1>
+                <span class="course-meta" id="courseMeta"></span>
+            </div>
+            <button class="btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i> Ajouter</button>
+        </header>
+
+        <div class="search-bar">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Rechercher...">
+            <button class="btn-search-clear" id="clearSearch" style="display: none;" onclick="clearSearch()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('supports')"><i class="fas fa-file-pdf"></i> Supports</button>
+            <button class="tab" onclick="switchTab('links')"><i class="fas fa-link"></i> Liens</button>
+            <button class="tab" onclick="switchTab('notes')"><i class="fas fa-sticky-note"></i> Notes</button>
+        </div>
+
+        <div class="tab-content">
+            <div id="supportsSection" class="section active">
+                <div id="supportsList" class="items-list"></div>
+                <div id="noSupports" class="empty-state" style="display: none;"><span class="empty-icon">📄</span><p>Aucun support PDF</p></div>
+            </div>
+            <div id="linksSection" class="section">
+                <div id="linksList" class="items-list"></div>
+                <div id="noLinks" class="empty-state" style="display: none;"><span class="empty-icon">🔗</span><p>Aucun lien</p></div>
+            </div>
+            <div id="notesSection" class="section">
+                <div id="notesByMonth" class="notes-container"></div>
+                <div id="noNotes" class="empty-state" style="display: none;"><span class="empty-icon">📝</span><p>Aucune note</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ajouter -->
+    <div id="addModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header"><h2>Ajouter un élément</h2><button class="modal-close" onclick="closeAddModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label class="form-label">Type <span class="required">*</span></label><div class="input-wrapper select-wrapper"><i class="fas fa-tag input-icon"></i><select id="itemType" onchange="handleTypeChange()"><option value="">-- Choisir --</option><option value="pdf">📄 PDF</option><option value="link">🔗 Lien</option><option value="note">📝 Note</option></select><i class="fas fa-chevron-down select-arrow"></i></div></div>
+                <div id="pdfForm" class="type-form" style="display: none;">
+                    <div class="form-group"><label class="form-label">Titre <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-heading input-icon"></i><input type="text" id="pdfTitle" placeholder="Titre du PDF"></div></div>
+                    <div class="form-group"><label class="form-label">Auteur <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-user input-icon"></i><input type="text" id="pdfAuthor" placeholder="Auteur"></div></div>
+                    <div class="form-group"><label class="form-label">Fichier <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-upload input-icon"></i><input type="file" id="pdfFile" accept=".pdf"></div></div>
+                </div>
+                <div id="linkForm" class="type-form" style="display: none;">
+                    <div class="form-group"><label class="form-label">Titre <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-heading input-icon"></i><input type="text" id="linkTitle" placeholder="Titre"></div></div>
+                    <div class="form-group"><label class="form-label">URL <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-globe input-icon"></i><input type="url" id="linkUrl" placeholder="https://..."></div></div>
+                </div>
+                <div id="noteForm" class="type-form" style="display: none;">
+                    <p class="note-info">Cliquez pour ouvrir le cahier</p>
+                    <button type="button" class="btn-open-notebook" onclick="openNotebook()"><i class="fas fa-book-open"></i> Ouvrir le cahier</button>
+                </div>
+                <div id="modalMessage" class="alert alert-error"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeAddModal()">Annuler</button><button class="btn btn-submit" id="submitItemBtn" disabled><i class="fas fa-check"></i> Ajouter</button></div>
+        </div>
+    </div>
+
+    <!-- Modal Cahier de notes -->
+    <div id="notebookModal" class="modal-overlay" style="display: none;">
+        <div class="notebook-card">
+            <div class="notebook-header"><h2>📝 Cahier de notes</h2><button class="modal-close" onclick="closeNotebook()"><i class="fas fa-times"></i></button></div>
+            <div class="notebook-toolbar">
+                <button type="button" onclick="execCmd('bold')" title="Gras"><i class="fas fa-bold"></i></button>
+                <button type="button" onclick="execCmd('italic')" title="Italique"><i class="fas fa-italic"></i></button>
+                <button type="button" onclick="execCmd('underline')" title="Souligné"><i class="fas fa-underline"></i></button>
+                <button type="button" onclick="execCmd('strikeThrough')" title="Barré"><i class="fas fa-strikethrough"></i></button>
+                <span class="toolbar-separator"></span>
+                <button type="button" onclick="execCmd('insertUnorderedList')" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
+                <button type="button" onclick="execCmd('insertOrderedList')" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
+                <span class="toolbar-separator"></span>
+                <div class="color-picker-wrapper">
+                    <button type="button" class="color-picker-btn" title="Couleur du texte" onclick="toggleColorPalette('fgPaletteNote')"><i class="fas fa-font"></i><span class="color-indicator" id="noteFgIndicator" style="background:#1a1a2e;"></span></button>
+                    <div class="color-palette" id="fgPaletteNote">
+                        <span class="color-label">Couleur du texte</span>
+                        <div class="color-swatches">
+                            <span class="color-swatch" style="background:#1a1a2e;" onclick="applyColor('foreColor','#1a1a2e','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#ef4444;" onclick="applyColor('foreColor','#ef4444','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#f97316;" onclick="applyColor('foreColor','#f97316','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#eab308;" onclick="applyColor('foreColor','#eab308','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#22c55e;" onclick="applyColor('foreColor','#22c55e','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#06b6d4;" onclick="applyColor('foreColor','#06b6d4','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#3b82f6;" onclick="applyColor('foreColor','#3b82f6','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#8b5cf6;" onclick="applyColor('foreColor','#8b5cf6','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#ec4899;" onclick="applyColor('foreColor','#ec4899','noteFgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#78716c;" onclick="applyColor('foreColor','#78716c','noteFgIndicator');event.stopPropagation();"></span>
+                        </div>
+                        <input type="color" onchange="applyColor('foreColor',this.value,'noteFgIndicator')" value="#1a1a2e">
+                    </div>
+                </div>
+                <span class="toolbar-separator"></span>
+                <div class="color-picker-wrapper">
+                    <button type="button" class="color-picker-btn highlight-btn" title="Surlignage" onclick="toggleColorPalette('bgPaletteNote')"><i class="fas fa-highlighter"></i><span class="color-indicator" id="noteBgIndicator" style="background:#fef08a;"></span></button>
+                    <div class="color-palette" id="bgPaletteNote">
+                        <span class="color-label">Surlignage</span>
+                        <div class="color-swatches">
+                            <span class="color-swatch" style="background:#fef08a;" onclick="applyColor('hiliteColor','#fef08a','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#bbf7d0;" onclick="applyColor('hiliteColor','#bbf7d0','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#bfdbfe;" onclick="applyColor('hiliteColor','#bfdbfe','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#fecaca;" onclick="applyColor('hiliteColor','#fecaca','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#fed7aa;" onclick="applyColor('hiliteColor','#fed7aa','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#e9d5ff;" onclick="applyColor('hiliteColor','#e9d5ff','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#fce7f3;" onclick="applyColor('hiliteColor','#fce7f3','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#e5e7eb;" onclick="applyColor('hiliteColor','#e5e7eb','noteBgIndicator');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:transparent;border:2px dashed #ccc;" onclick="applyColor('hiliteColor','transparent','noteBgIndicator');event.stopPropagation();"></span>
+                        </div>
+                        <input type="color" onchange="applyColor('hiliteColor',this.value,'noteBgIndicator')" value="#fef08a">
+                    </div>
+                </div>
+                <span class="toolbar-separator"></span>
+                <button type="button" onclick="execCmd('removeFormat')" title="Effacer formatage"><i class="fas fa-remove-format"></i></button>
+                <span class="toolbar-spacer"></span>
+                <button type="button" id="notebookMicBtn" class="toolbar-mic-btn" title="Dicter" onclick="toggleNotebookMic()"><i class="fas fa-microphone"></i></button>
+            </div>
+            <div class="notebook-body">
+                <div class="notebook-page notebook-page-large">
+                    <div class="notebook-lines"></div>
+                    <input type="text" id="noteTitle" class="notebook-title-input" placeholder="Titre de la note (ex: Les variables, La POO...)">
+                    <div id="noteContent" class="notebook-editor" contenteditable="true" placeholder="Commencez à écrire..."></div>
+                </div>
+            </div>
+            <div class="notebook-footer"><span class="note-date" id="noteDate"></span><button class="btn btn-submit" onclick="saveNoteFromNotebook()"><i class="fas fa-save"></i> Enregistrer</button></div>
+        </div>
+    </div>
+
+    <!-- Modal Modifier note -->
+    <div id="editNoteModal" class="modal-overlay" style="display: none;">
+        <div class="notebook-card">
+            <div class="notebook-header"><h2>✏️ Modifier la note</h2><button class="modal-close" onclick="closeEditNote()"><i class="fas fa-times"></i></button></div>
+            <div class="notebook-toolbar">
+                <button type="button" onclick="execCmd('bold',null,'editNoteContent')" title="Gras"><i class="fas fa-bold"></i></button>
+                <button type="button" onclick="execCmd('italic',null,'editNoteContent')" title="Italique"><i class="fas fa-italic"></i></button>
+                <button type="button" onclick="execCmd('underline',null,'editNoteContent')" title="Souligné"><i class="fas fa-underline"></i></button>
+                <button type="button" onclick="execCmd('strikeThrough',null,'editNoteContent')" title="Barré"><i class="fas fa-strikethrough"></i></button>
+                <span class="toolbar-separator"></span>
+                <button type="button" onclick="execCmd('insertUnorderedList',null,'editNoteContent')" title="Liste"><i class="fas fa-list-ul"></i></button>
+                <button type="button" onclick="execCmd('insertOrderedList',null,'editNoteContent')" title="Numérotation"><i class="fas fa-list-ol"></i></button>
+                <span class="toolbar-separator"></span>
+                <div class="color-picker-wrapper">
+                    <button type="button" class="color-picker-btn" title="Couleur du texte" onclick="toggleColorPalette('fgPaletteEdit')"><i class="fas fa-font"></i><span class="color-indicator" id="editFgIndicator" style="background:#1a1a2e;"></span></button>
+                    <div class="color-palette" id="fgPaletteEdit">
+                        <span class="color-label">Couleur du texte</span>
+                        <div class="color-swatches">
+                            <span class="color-swatch" style="background:#1a1a2e;" onclick="applyColor('foreColor','#1a1a2e','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#ef4444;" onclick="applyColor('foreColor','#ef4444','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#f97316;" onclick="applyColor('foreColor','#f97316','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#eab308;" onclick="applyColor('foreColor','#eab308','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#22c55e;" onclick="applyColor('foreColor','#22c55e','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#06b6d4;" onclick="applyColor('foreColor','#06b6d4','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#3b82f6;" onclick="applyColor('foreColor','#3b82f6','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#8b5cf6;" onclick="applyColor('foreColor','#8b5cf6','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#ec4899;" onclick="applyColor('foreColor','#ec4899','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#78716c;" onclick="applyColor('foreColor','#78716c','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
+                        </div>
+                        <input type="color" onchange="applyColor('foreColor',this.value,'editFgIndicator','editNoteContent')" value="#1a1a2e">
+                    </div>
+                </div>
+                <span class="toolbar-separator"></span>
+                <div class="color-picker-wrapper">
+                    <button type="button" class="color-picker-btn highlight-btn" title="Surlignage" onclick="toggleColorPalette('bgPaletteEdit')"><i class="fas fa-highlighter"></i><span class="color-indicator" id="editBgIndicator" style="background:#fef08a;"></span></button>
+                    <div class="color-palette" id="bgPaletteEdit">
+                        <span class="color-label">Surlignage</span>
+                        <div class="color-swatches">
+                            <span class="color-swatch" style="background:#fef08a;" onclick="applyColor('hiliteColor','#fef08a','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#bbf7d0;" onclick="applyColor('hiliteColor','#bbf7d0','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#bfdbfe;" onclick="applyColor('hiliteColor','#bfdbfe','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#fecaca;" onclick="applyColor('hiliteColor','#fecaca','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#fed7aa;" onclick="applyColor('hiliteColor','#fed7aa','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#e9d5ff;" onclick="applyColor('hiliteColor','#e9d5ff','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#fce7f3;" onclick="applyColor('hiliteColor','#fce7f3','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:#e5e7eb;" onclick="applyColor('hiliteColor','#e5e7eb','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                            <span class="color-swatch" style="background:transparent;border:2px dashed #ccc;" onclick="applyColor('hiliteColor','transparent','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
+                        </div>
+                        <input type="color" onchange="applyColor('hiliteColor',this.value,'editBgIndicator','editNoteContent')" value="#fef08a">
+                    </div>
+                </div>
+                <span class="toolbar-separator"></span>
+                <button type="button" onclick="execCmd('removeFormat',null,'editNoteContent')" title="Effacer formatage"><i class="fas fa-remove-format"></i></button>
+                <span class="toolbar-spacer"></span>
+                <button type="button" id="editNotebookMicBtn" class="toolbar-mic-btn" title="Dicter" onclick="toggleEditNotebookMic()"><i class="fas fa-microphone"></i></button>
+            </div>
+            <div class="notebook-body">
+                <div class="notebook-page notebook-page-large">
+                    <div class="notebook-lines"></div>
+                    <input type="text" id="editNoteTitle" class="notebook-title-input" placeholder="Titre de la note">
+                    <div id="editNoteContent" class="notebook-editor" contenteditable="true" placeholder="Modifiez votre note..."></div>
+                </div>
+            </div>
+            <div class="notebook-footer"><button class="btn btn-submit" onclick="saveEditedNote()"><i class="fas fa-save"></i> Enregistrer</button></div>
+        </div>
+    </div>
+
+    <script src="js/theme.js"></script>
+    <script src="js/course.js"></script>
+</body>
+</html>

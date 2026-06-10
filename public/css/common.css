@@ -1,0 +1,103 @@
+/* ==========================================
+   STYLES COMMUNS - VARIABLES COMPLÈTES
+   ========================================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* Mode clair (par défaut) */
+:root {
+    --bg: #f0f2f5;
+    --bg-secondary: #ffffff;
+    --surface: #ffffff;
+    --surface-hover: #f8f9fa;
+    --text: #1a1a2e;
+    --text-secondary: #64748b;
+    --text-light: #94a3b8;
+    --border: #e2e8f0;
+    --border-light: #f1f5f9;
+    
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --primary-dark: #4f46e5;
+    --secondary: #06b6d4;
+    --accent: #8b5cf6;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    
+    --glass: rgba(255, 255, 255, 0.9);
+    --glass-border: rgba(99, 102, 241, 0.15);
+    --glass-hover: rgba(99, 102, 241, 0.05);
+    
+    --input-bg: #f8fafc;
+    --input-border: #e2e8f0;
+    --input-focus: #6366f1;
+    
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.1);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+    --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+    
+    --radius-sm: 8px;
+    --radius: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --card-bg: #ffffff;
+}
+
+/* Mode sombre */
+[data-theme="dark"] {
+    --bg: #020617;
+    --bg-secondary: #0f172a;
+    --surface: #0f172a;
+    --surface-hover: #1e293b;
+    --text: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-light: #64748b;
+    --border: #1e293b;
+    --border-light: #334155;
+    
+    --primary: #818cf8;
+    --primary-light: #a5b4fc;
+    --primary-dark: #6366f1;
+    --secondary: #22d3ee;
+    --accent: #a78bfa;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    
+    --glass: rgba(15, 23, 42, 0.85);
+    --glass-border: rgba(99, 102, 241, 0.2);
+    --glass-hover: rgba(99, 102, 241, 0.1);
+    
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-focus: #818cf8;
+    
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow: 0 4px 12px rgba(0,0,0,0.4);
+    --shadow-md: 0 8px 24px rgba(0,0,0,0.5);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
+    --shadow-xl: 0 20px 60px rgba(0,0,0,0.7);
+    
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --card-bg: #0f172a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s ease, color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+}

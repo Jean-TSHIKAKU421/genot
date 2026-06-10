@@ -1,0 +1,373 @@
+// ==========================================
+// PAGE COURS - GESTION DES NOTES
+// ==========================================
+
+let courseId = null;
+let courseData = null;
+let allItems = { supports: [], links: [], notes: [] };
+let currentTab = 'supports';
+let noteBeingEdited = null;
+let notebookMicRecognition = null;
+let isNotebookMicListening = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    courseId = urlParams.get('id');
+    if (!courseId) { window.location.href = '/home'; return; }
+    
+    loadCourseData();
+    updateCurrentDate();
+    
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn = document.getElementById('clearSearch');
+    
+    if (searchInput) addMicButtonToSearch(searchInput);
+    
+    updateSearchPlaceholder();
+    
+    searchInput.addEventListener('input', () => {
+        clearBtn.style.display = searchInput.value.trim() ? 'block' : 'none';
+        performSearch(searchInput.value.trim());
+    });
+    
+    searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') clearSearch(); });
+    
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'addModal') closeAddModal();
+        if (e.target.id === 'notebookModal') closeNotebook();
+        if (e.target.id === 'editNoteModal') closeEditNote();
+        if (!e.target.closest('.color-picker-wrapper')) {
+            document.querySelectorAll('.color-palette').forEach(p => p.classList.remove('show'));
+        }
+    });
+});
+
+// ==========================================
+// GESTION TOUCHE TAB (INDENTATION)
+// ==========================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.classList.contains('notebook-editor')) {
+            e.preventDefault();
+            document.execCommand('insertHTML', false, '&emsp;&emsp;');
+        }
+    }
+});
+
+// ==========================================
+// ÉDITEUR DE TEXTE RICHE
+// ==========================================
+function execCmd(command, value = null, targetId = 'noteContent') {
+    const editor = document.getElementById(targetId);
+    if (!editor) return;
+    editor.focus();
+    if (command === 'insertOrderedList') { insertOrderedList(editor); return; }
+    if (command === 'insertUnorderedList') { insertUnorderedList(editor); return; }
+    document.execCommand(command, false, value);
+}
+
+function insertOrderedList(editor) {
+    const selection = window.getSelection();
+    let currentLi = null;
+    let node = selection.anchorNode;
+    while (node && node !== editor) {
+        if (node.nodeName === 'LI' && node.parentNode.nodeName === 'OL') { currentLi = node; break; }
+        if (node.nodeName === 'UL') break;
+        node = node.parentNode;
+    }
+    if (currentLi) { document.execCommand('insertOrderedList', false, null); return; }
+    if (!selection.isCollapsed && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        let parent = container.nodeType === 3 ? container.parentNode : container;
+        while (parent && parent !== editor) {
+            if (parent.nodeName === 'OL') { document.execCommand('insertOrderedList', false, null); return; }
+            parent = parent.parentNode;
+        }
+    }
+    document.execCommand('insertOrderedList', false, null);
+}
+
+function insertUnorderedList(editor) {
+    const selection = window.getSelection();
+    let currentLi = null;
+    let node = selection.anchorNode;
+    while (node && node !== editor) {
+        if (node.nodeName === 'LI' && node.parentNode.nodeName === 'UL') { currentLi = node; break; }
+        if (node.nodeName === 'OL') break;
+        node = node.parentNode;
+    }
+    if (currentLi) { document.execCommand('insertUnorderedList', false, null); return; }
+    if (!selection.isCollapsed && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        let parent = container.nodeType === 3 ? container.parentNode : container;
+        while (parent && parent !== editor) {
+            if (parent.nodeName === 'UL') { document.execCommand('insertUnorderedList', false, null); return; }
+            parent = parent.parentNode;
+        }
+    }
+    document.execCommand('insertUnorderedList', false, null);
+}
+
+// ==========================================
+// PALETTE DE COULEURS
+// ==========================================
+function toggleColorPalette(paletteId) {
+    const palette = document.getElementById(paletteId);
+    if (!palette) return;
+    document.querySelectorAll('.color-palette').forEach(p => { if (p.id !== paletteId) p.classList.remove('show'); });
+    palette.classList.toggle('show');
+}
+
+function applyColor(command, color, indicatorId, targetId = 'noteContent') {
+    const editor = document.getElementById(targetId);
+    if (!editor) return;
+    editor.focus();
+    document.execCommand(command, false, color);
+    const indicator = document.getElementById(indicatorId);
+    if (indicator) {
+        indicator.style.background = color === 'transparent' ? 'transparent' : color;
+        indicator.style.border = color === 'transparent' ? '2px dashed #ccc' : '1px solid var(--border)';
+    }
+}
+
+// ==========================================
+// MICRO BARRE D'OUTILS
+// ==========================================
+function toggleNotebookMic() { const btn = document.getElementById('notebookMicBtn'); const editor = document.getElementById('noteContent'); if (!btn || !editor) return; if (isNotebookMicListening) { stopNotebookMic(); return; } startNotebookMic(btn, editor); }
+function toggleEditNotebookMic() { const btn = document.getElementById('editNotebookMicBtn'); const editor = document.getElementById('editNoteContent'); if (!btn || !editor) return; if (isNotebookMicListening) { stopNotebookMic(); return; } startNotebookMic(btn, editor); }
+
+function startNotebookMic(btn, editor) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return;
+    notebookMicRecognition = new SpeechRecognition();
+    notebookMicRecognition.lang = 'fr-FR'; notebookMicRecognition.continuous = true; notebookMicRecognition.interimResults = true;
+    notebookMicRecognition.onresult = (e) => { let f = ''; for (let i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) f += e.results[i][0].transcript + ' '; } if (f) { editor.focus(); document.execCommand('insertText', false, f); } };
+    notebookMicRecognition.onerror = () => stopNotebookMic();
+    notebookMicRecognition.onend = () => { if (isNotebookMicListening) { try { notebookMicRecognition.start(); } catch(ex) { stopNotebookMic(); } } };
+    notebookMicRecognition.start();
+    isNotebookMicListening = true;
+    btn.classList.add('listening'); btn.querySelector('i').className = 'fas fa-microphone-alt';
+}
+
+function stopNotebookMic() {
+    if (notebookMicRecognition) { try { notebookMicRecognition.stop(); } catch(e) {} }
+    isNotebookMicListening = false;
+    document.querySelectorAll('.toolbar-mic-btn').forEach(b => { b.classList.remove('listening'); b.querySelector('i').className = 'fas fa-microphone'; });
+}
+
+// ==========================================
+// CHARGEMENT
+// ==========================================
+async function loadCourseData() {
+    try { const r = await fetch(`/api/course/${courseId}`); const d = await r.json(); if (d.success) { courseData = d.course; document.getElementById('courseTitle').textContent = courseData.title; document.getElementById('courseMeta').textContent = `${d.notes.length} élément(s)`; allItems.supports = d.notes.filter(n => n.type === 'support'); allItems.links = d.notes.filter(n => n.type === 'link'); allItems.notes = d.notes.filter(n => n.type === 'note'); renderAll(); } }
+    catch (e) { console.error(e); }
+}
+function renderAll() { renderSupports(); renderLinks(); renderNotes(); }
+
+function renderSupports() {
+    const c = document.getElementById('supportsList'), n = document.getElementById('noSupports');
+    if (!c || !n) return;
+    if (!allItems.supports.length) { c.innerHTML = ''; n.style.display = 'block'; return; }
+    n.style.display = 'none';
+    c.innerHTML = allItems.supports.map(item => `<div class="item-card" onclick="${item.file_url ? `window.open('${item.file_url}','_blank')` : ''}" style="${item.file_url ? 'cursor:pointer;' : ''}"><div class="item-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="item-info"><span class="item-title">${escapeHtml(item.title)}</span><span class="item-subtitle">${escapeHtml(item.content || 'Auteur inconnu')}</span></div><div class="item-actions" onclick="event.stopPropagation()"><button class="btn-icon delete" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareItem('${escapeHtml(item.title)}','${item.file_url||''}')"><i class="fas fa-share-alt"></i></button>${item.file_url?`<button class="btn-icon download" onclick="downloadFile('${item.file_url}')"><i class="fas fa-download"></i></button>`:''}</div></div>`).join('');
+}
+
+function renderLinks() {
+    const c = document.getElementById('linksList'), n = document.getElementById('noLinks');
+    if (!c || !n) return;
+    if (!allItems.links.length) { c.innerHTML = ''; n.style.display = 'block'; return; }
+    n.style.display = 'none';
+    c.innerHTML = allItems.links.map(item => `<div class="item-card"><div class="item-icon link"><i class="fas fa-link"></i></div><div class="item-info"><span class="item-title">${escapeHtml(item.title)}</span><span class="item-subtitle"><a href="${escapeHtml(item.content||'#')}" target="_blank" onclick="event.stopPropagation()">${escapeHtml(item.content||'#')}</a></span></div><div class="item-actions"><button class="btn-icon delete" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareItem('${escapeHtml(item.title)}','${escapeHtml(item.content||'')}')"><i class="fas fa-share-alt"></i></button><button class="btn-icon download" onclick="openLink('${escapeHtml(item.content||'')}')"><i class="fas fa-external-link-alt"></i></button></div></div>`).join('');
+}
+
+function renderNotes() {
+    const c = document.getElementById('notesByMonth'), n = document.getElementById('noNotes');
+    if (!c || !n) return;
+    if (!allItems.notes.length) { c.innerHTML = ''; n.style.display = 'block'; return; }
+    n.style.display = 'none';
+    const sorted = [...allItems.notes].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    const g = {};
+    sorted.forEach(note => {
+        const d = new Date(note.created_at);
+        const mk = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+        const mn = d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'});
+        if (!g[mk]) g[mk] = {name:mn,weeks:{}};
+        const wn = getWeekNumber(d), wk = `S${String(wn).padStart(2,'0')}`;
+        if (!g[mk].weeks[wk]) { const ws = getWeekStart(d), we = getWeekEnd(d); g[mk].weeks[wk] = {name:`Semaine ${wn} (${formatDate(ws)} - ${formatDate(we)})`,notes:[]}; }
+        g[mk].weeks[wk].notes.push(note);
+    });
+    c.innerHTML = Object.keys(g).sort((a,b) => b.localeCompare(a)).map(mk => {
+        const md = g[mk];
+        return `<div class="month-group"><div class="month-header" onclick="toggleMonth(this)"><span class="month-title"><i class="fas fa-calendar-alt"></i> ${capitalizeFirst(md.name)}</span><i class="fas fa-chevron-down month-toggle"></i></div><div class="month-content">${Object.keys(md.weeks).sort((a,b) => b.localeCompare(a)).map(wk => { const wd = md.weeks[wk]; return `<div class="week-group"><div class="week-header" onclick="toggleWeek(event,this)"><span>📅 ${wd.name}</span><i class="fas fa-chevron-down week-toggle"></i></div><div class="week-content">${wd.notes.map(note => `<div class="note-item"><div class="item-icon note"><i class="fas fa-sticky-note"></i></div><div class="note-info"><div class="note-title">${escapeHtml(note.title)}</div><div class="note-preview">${stripHtml(note.content).substring(0,80)+'...'||'Note vide'}</div></div><div class="item-actions"><button class="btn-icon edit" onclick="editNote(${note.id})"><i class="fas fa-edit"></i></button><button class="btn-icon delete" onclick="deleteItem(${note.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareNote(${note.id})"><i class="fas fa-share-alt"></i></button><button class="btn-icon download" onclick="downloadNote(${note.id})"><i class="fas fa-download"></i></button></div></div>`).join('')}</div></div>`; }).join('')}</div></div>`;
+    }).join('');
+}
+
+function toggleMonth(h) { const c = h.nextElementSibling, t = h.querySelector('.month-toggle'); if(c) c.classList.toggle('open'); if(t) t.classList.toggle('open'); }
+function toggleWeek(e,h) { e.stopPropagation(); const c = h.nextElementSibling, t = h.querySelector('.week-toggle'); if(c) c.classList.toggle('open'); if(t) t.classList.toggle('open'); }
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach((t,i) => { t.classList.remove('active'); if((tab==='supports'&&i===0)||(tab==='links'&&i===1)||(tab==='notes'&&i===2)) t.classList.add('active'); });
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    const el = document.getElementById({supports:'supportsSection',links:'linksSection',notes:'notesSection'}[tab]);
+    if(el) el.classList.add('active');
+    updateSearchPlaceholder(); clearSearch();
+    if(tab==='supports') renderSupports(); else if(tab==='links') renderLinks(); else if(tab==='notes') renderNotes();
+}
+
+// ==========================================
+// RECHERCHE
+// ==========================================
+function updateSearchPlaceholder() { const i = document.getElementById('searchInput'); if(i) i.placeholder = {supports:'🔍 Titre ou auteur...',links:'🔍 Titre ou URL...',notes:'🔍 Titre, date ou contenu...'}[currentTab]||'🔍 Rechercher...'; }
+function performSearch(term) { if(!term) { restoreAllViews(); return; } const t = term.toLowerCase().trim(); if(currentTab==='supports') searchSupports(t); else if(currentTab==='links') searchLinks(t); else if(currentTab==='notes') searchNotes(t); }
+function restoreAllViews() { if(currentTab==='supports') renderSupports(); else if(currentTab==='links') renderLinks(); else if(currentTab==='notes') renderNotes(); }
+
+function searchSupports(term) {
+    const r = [];
+    allItems.supports.forEach(item => { const ti=(item.title||'').toLowerCase(), au=(item.content||'').toLowerCase(); if(ti.includes(term)||au.includes(term)){r.push({item,score:100});return;} const s=Math.max(similarity(ti,term),similarity(au,term)); if(s>=50) r.push({item,score:s}); });
+    displayFilteredSupports(r);
+}
+function displayFilteredSupports(results) {
+    const c = document.getElementById('supportsList'), n = document.getElementById('noSupports');
+    if(!results.length){c.innerHTML='<div class="empty-state" style="padding:40px;"><span class="empty-icon">🔍</span><p>Aucun support</p></div>';n.style.display='none';return;}
+    n.style.display='none'; results.sort((a,b)=>b.score-a.score);
+    const st = document.getElementById('searchInput').value;
+    c.innerHTML = results.map(r => { const item=r.item, badge=r.score<100?`<span style="font-size:0.7em;color:var(--warning);margin-left:8px;">~${r.score}%</span>`:''; return `<div class="item-card" onclick="${item.file_url?`window.open('${item.file_url}','_blank')`:''}" style="${item.file_url?'cursor:pointer;':''}"><div class="item-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="item-info"><span class="item-title">${highlightMatch(item.title,st)}${badge}</span><span class="item-subtitle">${highlightMatch(item.content||'Auteur inconnu',st)}</span></div><div class="item-actions" onclick="event.stopPropagation()"><button class="btn-icon delete" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareItem('${escapeHtml(item.title)}','${item.file_url||''}')"><i class="fas fa-share-alt"></i></button>${item.file_url?`<button class="btn-icon download" onclick="downloadFile('${item.file_url}')"><i class="fas fa-download"></i></button>`:''}</div></div>`; }).join('');
+}
+
+function searchLinks(term) {
+    const r = [];
+    allItems.links.forEach(item => { const ti=(item.title||'').toLowerCase(), ur=(item.content||'').toLowerCase(); if(ti.includes(term)||ur.includes(term)){r.push({item,score:100});return;} const s=Math.max(similarity(ti,term),similarity(ur,term)); if(s>=50) r.push({item,score:s}); });
+    displayFilteredLinks(r);
+}
+function displayFilteredLinks(results) {
+    const c = document.getElementById('linksList'), n = document.getElementById('noLinks');
+    if(!results.length){c.innerHTML='<div class="empty-state" style="padding:40px;"><span class="empty-icon">🔍</span><p>Aucun lien</p></div>';n.style.display='none';return;}
+    n.style.display='none'; results.sort((a,b)=>b.score-a.score);
+    const st = document.getElementById('searchInput').value;
+    c.innerHTML = results.map(r => { const item=r.item, badge=r.score<100?`<span style="font-size:0.7em;color:var(--warning);margin-left:8px;">~${r.score}%</span>`:''; return `<div class="item-card"><div class="item-icon link"><i class="fas fa-link"></i></div><div class="item-info"><span class="item-title">${highlightMatch(item.title,st)}${badge}</span><span class="item-subtitle"><a href="${escapeHtml(item.content||'#')}" target="_blank" onclick="event.stopPropagation()">${highlightMatch(item.content||'#',st)}</a></span></div><div class="item-actions"><button class="btn-icon delete" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareItem('${escapeHtml(item.title)}','${escapeHtml(item.content||'')}')"><i class="fas fa-share-alt"></i></button><button class="btn-icon download" onclick="openLink('${escapeHtml(item.content||'')}')"><i class="fas fa-external-link-alt"></i></button></div></div>`; }).join('');
+}
+
+function searchNotes(term) {
+    const r = [];
+    allItems.notes.forEach(item => { if(!item) return; const ti=(item.title||'').toLowerCase(), co=stripHtml(item.content||'').toLowerCase(); const d=item.created_at?new Date(item.created_at):null; const ds=d?d.toISOString().split('T')[0]:'', df=d?d.toLocaleDateString('fr-FR'):''; if(ti.includes(term)||co.includes(term)||ds.includes(term)||df.includes(term)){r.push({item,score:100});return;} const s=Math.max(similarity(ti,term),similarity(co,term)); if(s>=50) r.push({item,score:s}); });
+    displayFilteredNotes(r);
+}
+function displayFilteredNotes(results) {
+    const c = document.getElementById('notesByMonth'), n = document.getElementById('noNotes'), st = document.getElementById('searchInput').value;
+    if(!results||!results.length){c.innerHTML=`<div class="empty-state" style="padding:40px;"><span class="empty-icon">🔍</span><p>Aucune note pour "${st}"</p></div>`;n.style.display='none';return;}
+    n.style.display='none'; results.sort((a,b)=>b.score!==a.score?b.score-a.score:new Date(b.item.created_at)-new Date(a.item.created_at));
+    const g = {};
+    results.forEach(result => { const note=result.item; if(!note||!note.created_at) return; const d=new Date(note.created_at); const mk=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; const mn=d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}); if(!g[mk]) g[mk]={name:mn,weeks:{}}; const wn=getWeekNumber(d), wk=`S${String(wn).padStart(2,'0')}`; if(!g[mk].weeks[wk]){const ws=getWeekStart(d),we=getWeekEnd(d);g[mk].weeks[wk]={name:`Semaine ${wn} (${formatDate(ws)} - ${formatDate(we)})`,notes:[]};} g[mk].weeks[wk].notes.push({...note,_score:result.score}); });
+    const months = Object.keys(g).sort((a,b)=>b.localeCompare(a));
+    if(!months.length){c.innerHTML='<div class="empty-state"><p>Aucune note</p></div>';return;}
+    c.innerHTML = months.map(mk => { const md=g[mk]; return `<div class="month-group"><div class="month-header" onclick="toggleMonth(this)"><span class="month-title"><i class="fas fa-calendar-alt"></i> ${capitalizeFirst(md.name)}</span><i class="fas fa-chevron-down month-toggle open"></i></div><div class="month-content open">${Object.keys(md.weeks).sort((a,b)=>b.localeCompare(a)).map(wk=>{const wd=md.weeks[wk];return`<div class="week-group"><div class="week-header" onclick="toggleWeek(event,this)"><span>📅 ${wd.name}</span><i class="fas fa-chevron-down week-toggle open"></i></div><div class="week-content open">${wd.notes.map(note=>{const badge=note._score<100?`<span style="font-size:0.7em;color:var(--warning);margin-left:6px;">~${note._score}%</span>`:'';return`<div class="note-item"><div class="item-icon note"><i class="fas fa-sticky-note"></i></div><div class="note-info"><div class="note-title">${highlightMatch(note.title||'Sans titre',st)}${badge}</div><div class="note-preview">${highlightMatch(stripHtml(note.content).substring(0,100)+'...'||'Note vide',st)}</div></div><div class="item-actions"><button class="btn-icon edit" onclick="editNote(${note.id})"><i class="fas fa-edit"></i></button><button class="btn-icon delete" onclick="deleteItem(${note.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareNote(${note.id})"><i class="fas fa-share-alt"></i></button><button class="btn-icon download" onclick="downloadNote(${note.id})"><i class="fas fa-download"></i></button></div></div>`;}).join('')}</div></div>`;}).join('')}</div></div>`; }).join('');
+}
+
+function similarity(a,b){if(!a||!b)return 0;const m=[];for(let i=0;i<=a.length;i++)m[i]=[i];for(let j=0;j<=b.length;j++)m[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));const d=m[a.length][b.length],max=Math.max(a.length,b.length);return max===0?100:Math.round(((max-d)/max)*100);}
+function highlightMatch(text,term){if(!text||!term)return escapeHtml(text);const escaped=escapeHtml(text);const regex=new RegExp(`(${escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');return escaped.replace(regex,'<mark style="background:rgba(245,158,11,0.3);padding:2px 4px;border-radius:3px;">$1</mark>');}
+function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearSearch').style.display='none';restoreAllViews();}
+
+// ==========================================
+// MICRO BARRE DE RECHERCHE
+// ==========================================
+function addMicButtonToSearch(inputElement) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if(!SR)return;
+    const btn = document.createElement('button'); btn.type='button'; btn.className='mic-btn'; btn.innerHTML='<i class="fas fa-microphone"></i>'; btn.title='Dicter';
+    btn.style.cssText='position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:1em;padding:6px 10px;border-radius:20px;z-index:10;color:var(--text-muted);display:flex;align-items:center;';
+    inputElement.parentElement.style.position='relative'; inputElement.parentElement.appendChild(btn);
+    let rec=null, listening=false;
+    btn.addEventListener('click',()=>{
+        if(listening){if(rec)rec.stop();listening=false;btn.classList.remove('listening');btn.innerHTML='<i class="fas fa-microphone"></i>';btn.style.background='var(--input-bg)';btn.style.color='var(--text-muted)';return;}
+        rec=new SR();rec.lang='fr-FR';rec.continuous=false;rec.interimResults=true;
+        rec.onresult=(e)=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;inputElement.value=t;inputElement.dispatchEvent(new Event('input'));};
+        rec.onerror=()=>{listening=false;btn.classList.remove('listening');btn.innerHTML='<i class="fas fa-microphone"></i>';};
+        rec.onend=()=>{listening=false;btn.classList.remove('listening');btn.innerHTML='<i class="fas fa-microphone"></i>';};
+        rec.start();listening=true;btn.classList.add('listening');btn.innerHTML='<i class="fas fa-microphone-alt"></i>';btn.style.background='#ef4444';btn.style.color='#fff';
+    });
+}
+
+// ==========================================
+// MODAL AJOUT
+// ==========================================
+function openAddModal(){document.getElementById('addModal').style.display='flex';resetAddForm();}
+function closeAddModal(){document.getElementById('addModal').style.display='none';resetAddForm();}
+function resetAddForm(){
+    document.getElementById('itemType').value='';document.getElementById('pdfForm').style.display='none';document.getElementById('linkForm').style.display='none';document.getElementById('noteForm').style.display='none';
+    document.getElementById('submitItemBtn').style.display='inline-flex';document.getElementById('submitItemBtn').disabled=true;document.getElementById('submitItemBtn').onclick=null;
+    document.getElementById('modalMessage').classList.remove('show');
+    document.getElementById('pdfTitle').value='';document.getElementById('pdfAuthor').value='';document.getElementById('pdfFile').value='';
+    document.getElementById('linkTitle').value='';document.getElementById('linkUrl').value='';
+}
+function handleTypeChange(){
+    const type=document.getElementById('itemType').value;
+    document.getElementById('pdfForm').style.display='none';document.getElementById('linkForm').style.display='none';document.getElementById('noteForm').style.display='none';
+    document.getElementById('submitItemBtn').style.display='inline-flex';document.getElementById('submitItemBtn').disabled=true;document.getElementById('submitItemBtn').onclick=null;
+    document.getElementById('modalMessage').classList.remove('show');
+    if(type==='pdf'){document.getElementById('pdfForm').style.display='block';document.getElementById('submitItemBtn').disabled=false;document.getElementById('submitItemBtn').onclick=submitPdf;}
+    else if(type==='link'){document.getElementById('linkForm').style.display='block';document.getElementById('submitItemBtn').disabled=false;document.getElementById('submitItemBtn').onclick=submitLink;}
+    else if(type==='note'){document.getElementById('noteForm').style.display='block';document.getElementById('submitItemBtn').style.display='none';}
+}
+async function submitPdf(){
+    const title=document.getElementById('pdfTitle').value.trim(),author=document.getElementById('pdfAuthor').value.trim(),file=document.getElementById('pdfFile').files[0];
+    if(!title||!author||!file){showModalMessage('Tous les champs requis.','error');return;}
+    const cu=JSON.parse(sessionStorage.getItem('currentUser'));
+    const fd=new FormData();fd.append('course_id',courseId);fd.append('title',title);fd.append('content',author);fd.append('type','support');fd.append('user_matricule',cu.matricule);fd.append('file',file);
+    try{const r=await fetch('/api/notes',{method:'POST',body:fd});const d=await r.json();if(d.success){closeAddModal();loadCourseData();}else showModalMessage(d.message,'error');}catch(e){showModalMessage('Erreur.','error');}
+}
+async function submitLink(){
+    const title=document.getElementById('linkTitle').value.trim(),url=document.getElementById('linkUrl').value.trim();
+    if(!title||!url){showModalMessage('Titre et URL requis.','error');return;}
+    try{const r=await fetch('/api/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course_id:courseId,title,content:url,type:'link'})});const d=await r.json();if(d.success){closeAddModal();loadCourseData();}else showModalMessage(d.message,'error');}catch(e){showModalMessage('Erreur.','error');}
+}
+function showModalMessage(text,type){const el=document.getElementById('modalMessage');el.textContent=text;el.className=`alert alert-${type} show`;}
+
+// ==========================================
+// CAHIER DE NOTES
+// ==========================================
+function openNotebook(){document.getElementById('notebookModal').style.display='flex';document.getElementById('noteTitle').value='';document.getElementById('noteContent').innerHTML='';document.getElementById('noteTitle').focus();updateCurrentDate();}
+function closeNotebook(){stopNotebookMic();document.getElementById('notebookModal').style.display='none';}
+function updateCurrentDate(){const d=new Date();const el=document.getElementById('noteDate');if(el)el.textContent=d.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+async function saveNoteFromNotebook(){
+    const title=document.getElementById('noteTitle').value.trim(),content=document.getElementById('noteContent').innerHTML.trim();
+    if(!title){alert('Veuillez entrer un titre.');return;}
+    if(!content||content==='<br>'){alert('Veuillez écrire quelque chose.');return;}
+    try{const r=await fetch('/api/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course_id:courseId,title,content,type:'note'})});const d=await r.json();if(d.success){closeNotebook();closeAddModal();loadCourseData();}else alert(d.message);}catch(e){alert('Erreur.');}
+}
+
+// ==========================================
+// MODIFIER NOTE
+// ==========================================
+function editNote(noteId){const note=allItems.notes.find(n=>n.id===noteId);if(!note)return;noteBeingEdited=noteId;document.getElementById('editNoteModal').style.display='flex';document.getElementById('editNoteTitle').value=note.title||'';document.getElementById('editNoteContent').innerHTML=note.content||'';setTimeout(()=>document.getElementById('editNoteTitle').focus(),100);}
+function closeEditNote(){stopNotebookMic();document.getElementById('editNoteModal').style.display='none';noteBeingEdited=null;}
+async function saveEditedNote(){
+    if(!noteBeingEdited)return;
+    const title=document.getElementById('editNoteTitle').value.trim(),content=document.getElementById('editNoteContent').innerHTML.trim();
+    if(!title){alert('Titre requis.');return;}
+    if(!content||content==='<br>'){alert('La note ne peut pas être vide.');return;}
+    try{const r=await fetch(`/api/notes/${noteBeingEdited}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content})});const d=await r.json();if(d.success){closeEditNote();loadCourseData();}else alert(d.message);}catch(e){alert('Erreur.');}
+}
+
+// ==========================================
+// SUPPRIMER / PARTAGER / TÉLÉCHARGER
+// ==========================================
+async function deleteItem(id){if(!confirm('Mettre dans la corbeille ?'))return;try{const r=await fetch(`/api/notes/${id}`,{method:'DELETE'});if((await r.json()).success)loadCourseData();}catch(e){}}
+function shareItem(title,url){if(navigator.share)navigator.share({title,url:url||window.location.href}).catch(()=>{});else navigator.clipboard.writeText(url||window.location.href).then(()=>alert('Lien copié !')).catch(()=>{});}
+function shareNote(id){const n=allItems.notes.find(x=>x.id===id);if(n)shareItem(n.title,'');}
+function downloadFile(url){if(url)window.open(url,'_blank');}
+function downloadNote(id){const n=allItems.notes.find(x=>x.id===id);if(!n)return;const c=`Titre: ${n.title}\nDate: ${new Date(n.created_at).toLocaleString('fr-FR')}\n\n${stripHtml(n.content||'')}`;const b=new Blob([c],{type:'text/plain;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`${n.title.replace(/\s+/g,'_')}.txt`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
+function openLink(url){if(url)window.open(url.startsWith('http')?url:'https://'+url,'_blank');}
+
+// ==========================================
+// UTILITAIRES
+// ==========================================
+function escapeHtml(text){if(!text)return'';const d=document.createElement('div');d.textContent=text;return d.innerHTML;}
+function stripHtml(html){if(!html)return'';const d=document.createElement('div');d.innerHTML=html;return d.textContent||d.innerText||'';}
+function capitalizeFirst(s){if(!s)return'';return s.charAt(0).toUpperCase()+s.slice(1);}
+function getWeekNumber(date){const d=new Date(date);d.setHours(0,0,0,0);d.setDate(d.getDate()+4-(d.getDay()||7));const ys=new Date(d.getFullYear(),0,1);return Math.ceil(((d-ys)/86400000+1)/7);}
+function getWeekStart(date){const d=new Date(date);const day=d.getDay()||7;d.setDate(d.getDate()-day+1);return d;}
+function getWeekEnd(date){const d=getWeekStart(date);d.setDate(d.getDate()+6);return d;}
+function formatDate(date){return date.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'});}
