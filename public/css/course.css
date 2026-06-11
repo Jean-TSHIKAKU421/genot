@@ -229,3 +229,93 @@
     .empty-state { padding: 40px 16px; }
     .empty-icon { font-size: 40px; }
 }
+
+/* ============ NOTE ITEM RESPONSIVE ============ */
+@media (max-width: 768px) {
+    .note-item {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px 14px;
+    }
+    
+    .note-item .item-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    
+    .note-item .note-info {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .note-item .note-title {
+        font-size: 0.85em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .note-item .note-preview {
+        font-size: 0.75em;
+    }
+    
+    .note-item .item-actions {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 4px;
+        padding-top: 6px;
+        border-top: 1px solid var(--border);
+    }
+    
+    .note-item .btn-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .note-item {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    
+    .note-item .item-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .note-item .note-title {
+        font-size: 0.8em;
+    }
+    
+    .note-item .note-preview {
+        font-size: 0.7em;
+    }
+    
+    .note-item .item-actions {
+        padding-top: 4px;
+        gap: 3px;
+    }
+    
+    .note-item .btn-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+    }
+}
+
+.note-item {
+    padding: 12px 16px;
+    margin: 4px 0;
+    background: var(--input-bg);
+    border-radius: var(--radius);
+    border-left: 3px solid var(--primary);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: var(--transition);
+}
