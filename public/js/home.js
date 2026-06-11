@@ -190,7 +190,7 @@ function searchHomeCourses(term) {
                 <div class="course-card-body">
                     <h3 class="course-card-title">${highlightMatchHome(escapeHtml(course.title), term)}${badge}</h3>
                     <div class="course-card-professor"><i class="fas fa-user-tie"></i> ${highlightMatchHome(course.professor ? escapeHtml(course.professor) : '---------', term)}</div>
-                    <div class="course-card-meta">📝 ${course.noteCount || 0} note(s) • 📅 ${new Date(course.created_at).toLocaleDateString('fr-FR')}</div>
+                    <div class="course-card-meta">📝 ${course.noteCount || 0} donnée(s) • 📅 ${new Date(course.created_at).toLocaleDateString('fr-FR')}</div>
                     <div class="course-card-actions" onclick="event.stopPropagation()">
                         <a href="/course?id=${course.id}" class="btn-enter">📖 Voir le cours</a>
                         <button onclick="deleteCourse(${course.id})" class="btn-danger">🗑️</button>
