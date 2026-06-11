@@ -156,32 +156,25 @@
 .color-swatch:hover { border-color: var(--primary); transform: scale(1.2); }
 .color-palette input[type="color"] { width: 100%; height: 28px; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; padding: 2px; background: transparent; }
 
-/* ============ CAHIER PARFAITEMENT ALIGNÉ ============ */
+/* ============ CAHIER STYLE WORD ============ */
 .notebook-body { flex: 1; padding: 24px; overflow-y: auto; }
-.notebook-page { background: #fefce8; border-radius: 4px; padding: 40px 40px 40px 60px; min-height: 500px; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-.notebook-page::before { content: ''; position: absolute; left: 50px; top: 0; bottom: 0; width: 2px; background: rgba(239,68,68,0.35); z-index: 0; pointer-events: none; }
-.notebook-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(transparent, transparent 31px, #d1d5db 31px, #d1d5db 32px); pointer-events: none; border-radius: 4px; z-index: 0; }
-.notebook-title-input { width: 100%; background: transparent; border: none; border-bottom: 2px dashed #d1d5db; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.2em; font-weight: 700; color: #1a1a2e; padding: 0 0 8px 0; margin-bottom: 24px; position: relative; z-index: 1; }
+.notebook-page { background: #fefce8; border-radius: 8px; padding: 50px 60px; min-height: 500px; position: relative; box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
+.notebook-page::before { display: none; }
+.notebook-lines { display: none; }
+.notebook-title-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid #e5e7eb; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5em; font-weight: 700; color: #1a1a2e; padding: 0 0 12px 0; margin-bottom: 30px; position: relative; z-index: 1; }
 .notebook-title-input::placeholder { color: #9ca3af; font-weight: 400; font-style: italic; }
 .notebook-title-input:focus { border-bottom-color: var(--primary); }
-
-.notebook-editor { width: 100%; min-height: 400px; background: transparent; border: none; outline: none; font-family: 'Courier New', 'Liberation Mono', monospace; font-size: 16px; line-height: 32px; color: #1a1a2e; position: relative; z-index: 1; padding: 0; word-wrap: break-word; overflow-y: auto; }
+.notebook-editor { width: 100%; min-height: 400px; background: transparent; border: none; outline: none; font-family: 'Calibri', 'Segoe UI', 'Plus Jakarta Sans', sans-serif; font-size: 17px; line-height: 1.8; color: #1a1a2e; position: relative; z-index: 1; padding: 0; word-wrap: break-word; overflow-y: auto; }
 .notebook-editor:empty::before { content: attr(placeholder); color: #9ca3af; pointer-events: none; }
 .notebook-editor:focus { outline: none; }
-
-/* Chaque élément de l'éditeur aligné sur les lignes */
-.notebook-editor p,
-.notebook-editor div { margin: 0; padding: 0; line-height: 32px; font-size: 16px; font-family: 'Courier New', 'Liberation Mono', monospace; color: #1a1a2e; min-height: 32px; }
-.notebook-editor ul,
-.notebook-editor ol { padding-left: 35px; margin: 0; line-height: 32px; }
-.notebook-editor ul li,
-.notebook-editor ol li { line-height: 32px; font-size: 16px; font-family: 'Courier New', 'Liberation Mono', monospace; color: #1a1a2e; padding: 0; margin: 0; }
+.notebook-editor p { margin: 0 0 12px 0; line-height: 1.8; font-size: 17px; }
+.notebook-editor ul, .notebook-editor ol { padding-left: 30px; margin: 8px 0 12px 0; }
+.notebook-editor ul li, .notebook-editor ol li { line-height: 1.8; font-size: 17px; margin-bottom: 4px; }
 .notebook-editor b, .notebook-editor strong { font-weight: 700; }
 .notebook-editor i, .notebook-editor em { font-style: italic; }
 .notebook-editor u { text-decoration: underline; }
 .notebook-editor s, .notebook-editor strike { text-decoration: line-through; }
-
-.notebook-footer { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid var(--border); }
+.notebook-footer { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-top: 1px solid var(--border); background: var(--input-bg); border-radius: 0 0 var(--radius) var(--radius); }
 .note-date { color: var(--text-secondary); font-size: 0.9em; }
 .note-info { color: var(--text-secondary); font-size: 0.9em; text-align: center; }
 
@@ -210,14 +203,11 @@
     .notebook-toolbar { gap: 2px; padding: 8px 10px; }
     .notebook-toolbar button { width: 30px; height: 30px; font-size: 0.8em; }
     .notebook-body { padding: 16px; }
-    .notebook-page { padding: 24px 24px 24px 42px; min-height: 350px; }
-    .notebook-page::before { left: 32px; }
-    .notebook-lines { background: repeating-linear-gradient(transparent, transparent 27px, #d1d5db 27px, #d1d5db 28px); }
-    .notebook-title-input { font-size: 1.1em; margin-bottom: 18px; }
-    .notebook-editor { min-height: 300px; font-size: 14px; line-height: 28px; }
-    .notebook-editor p, .notebook-editor div { line-height: 28px; font-size: 14px; min-height: 28px; }
-    .notebook-editor ul, .notebook-editor ol { padding-left: 28px; line-height: 28px; }
-    .notebook-editor ul li, .notebook-editor ol li { line-height: 28px; font-size: 14px; }
+    .notebook-page { padding: 30px 24px; min-height: 350px; }
+    .notebook-title-input { font-size: 1.3em; margin-bottom: 24px; }
+    .notebook-editor { min-height: 300px; font-size: 15px; }
+    .notebook-editor p { font-size: 15px; }
+    .notebook-editor ul li, .notebook-editor ol li { font-size: 15px; }
     .notebook-footer { padding: 12px 16px; flex-direction: column; gap: 10px; }
     .notebook-footer .btn { width: 100%; }
     .note-item { flex-wrap: wrap; gap: 10px; padding: 12px 14px; }
@@ -248,14 +238,11 @@
     .notebook-toolbar button { width: 28px; height: 28px; font-size: 0.75em; }
     .toolbar-separator { margin: 0 2px; }
     .notebook-body { padding: 10px; }
-    .notebook-page { padding: 18px 18px 18px 34px; min-height: 280px; }
-    .notebook-page::before { left: 26px; }
-    .notebook-lines { background: repeating-linear-gradient(transparent, transparent 25px, #d1d5db 25px, #d1d5db 26px); }
-    .notebook-title-input { font-size: 1em; margin-bottom: 14px; }
-    .notebook-editor { min-height: 240px; font-size: 13px; line-height: 26px; }
-    .notebook-editor p, .notebook-editor div { line-height: 26px; font-size: 13px; min-height: 26px; }
-    .notebook-editor ul, .notebook-editor ol { padding-left: 22px; line-height: 26px; }
-    .notebook-editor ul li, .notebook-editor ol li { line-height: 26px; font-size: 13px; }
+    .notebook-page { padding: 20px 16px; min-height: 280px; border-radius: 4px; }
+    .notebook-title-input { font-size: 1.1em; margin-bottom: 18px; }
+    .notebook-editor { min-height: 240px; font-size: 14px; }
+    .notebook-editor p { font-size: 14px; }
+    .notebook-editor ul li, .notebook-editor ol li { font-size: 14px; }
     .empty-state { padding: 40px 16px; }
     .empty-icon { font-size: 40px; }
     .note-item { padding: 10px 12px; gap: 8px; }
