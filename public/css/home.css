@@ -136,7 +136,7 @@
     .btn-sm { padding: 12px 18px; font-size: 0.9em; border-radius: 50px; }
     .theme-toggle-btn { width: 44px; height: 44px; font-size: 1.2em; }
     .btn-label { display: none; }
-    .home-title { font-size: 1.2em; margin: 20px 0 12px; }
+    .home-title { font-size: 2.2em; margin: 20px 0 12px; }
     .courses-grid { grid-template-columns: 1fr; gap: 18px; }
     .course-card:hover { transform: none; }
     .course-card-image { height: 180px; }
@@ -156,7 +156,7 @@
     .home-title { font-size: 1.1em; }
     .course-card-image { height: 160px; }
     .course-card-body { padding: 18px; }
-    .course-card-title { font-size: 1.15em; }
+    .course-card-title { font-size: 2.15em; }
     .course-card-actions { flex-direction: row; }
     .course-card-actions .btn-danger { padding: 8px 14px; font-size: 0.9em; }
     .btn-enter { font-size: 0.85em; padding: 10px 16px; }
