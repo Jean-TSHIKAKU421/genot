@@ -131,7 +131,7 @@
     .header-top { padding: 0 4px; }
     .logo-wrapper { width: 56px; height: 56px; }
     .user-photo-header, .user-avatar-header { width: 56px; height: 56px; }
-    .header-user-name { display: none; }
+    /*.header-user-name { display: none; }*/
     .header-actions { gap: 16px; margin-top: 14px; padding-top: 14px; }
     .btn-sm { padding: 12px 18px; font-size: 0.9em; border-radius: 50px; }
     .theme-toggle-btn { width: 44px; height: 44px; font-size: 1.2em; }
