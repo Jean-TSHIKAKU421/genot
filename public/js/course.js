@@ -12,36 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSearchPlaceholder();
     searchInput.addEventListener('input', () => { clearBtn.style.display = searchInput.value.trim() ? 'block' : 'none'; performSearch(searchInput.value.trim()); });
     searchInput.addEventListener('keydown', (e) => { if (e.key === 'Escape') clearSearch(); });
-    document.addEventListener('click', function(e) {
-        if (e.target.id === 'addModal') closeAddModal(); if (e.target.id === 'notebookModal') closeNotebook(); if (e.target.id === 'editNoteModal') closeEditNote();
-        if (!e.target.closest('.color-picker-wrapper')) { document.querySelectorAll('.color-palette').forEach(p => p.classList.remove('show')); }
-    });
+    document.addEventListener('click', function(e) { if (e.target.id === 'addModal') closeAddModal(); if (e.target.id === 'notebookModal') closeNotebook(); if (e.target.id === 'editNoteModal') closeEditNote(); });
 });
 
 document.addEventListener('keydown', function(e) { if (e.key === 'Tab') { const el = document.activeElement; if (el && el.classList.contains('notebook-editor')) { e.preventDefault(); document.execCommand('insertHTML', false, '&emsp;&emsp;'); } } });
 
-// ==========================================
-// ÉDITEUR
-// ==========================================
 function execCmd(command, value = null, targetId = 'noteContent') { const editor = document.getElementById(targetId); if (!editor) return; editor.focus(); document.execCommand(command, false, value); }
 
-// ==========================================
-// PALETTE COULEURS
-// ==========================================
-function toggleColorPalette(paletteId) { const palette = document.getElementById(paletteId); if (!palette) return; document.querySelectorAll('.color-palette').forEach(p => { if (p.id !== paletteId) p.classList.remove('show'); }); palette.classList.toggle('show'); }
-function applyColor(command, color, indicatorId, targetId = 'noteContent') { const editor = document.getElementById(targetId); if (!editor) return; editor.focus(); document.execCommand(command, false, color); const indicator = document.getElementById(indicatorId); if (indicator) { indicator.style.background = color === 'transparent' ? 'transparent' : color; indicator.style.border = color === 'transparent' ? '2px dashed #ccc' : '1px solid var(--border)'; } }
-
-// ==========================================
-// MICRO
-// ==========================================
 function toggleNotebookMic() { const btn = document.getElementById('notebookMicBtn'), editor = document.getElementById('noteContent'); if (!btn || !editor) return; if (isNotebookMicListening) { stopNotebookMic(); return; } startNotebookMic(btn, editor); }
 function toggleEditNotebookMic() { const btn = document.getElementById('editNotebookMicBtn'), editor = document.getElementById('editNoteContent'); if (!btn || !editor) return; if (isNotebookMicListening) { stopNotebookMic(); return; } startNotebookMic(btn, editor); }
 function startNotebookMic(btn, editor) { const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return; notebookMicRecognition = new SR(); notebookMicRecognition.lang = 'fr-FR'; notebookMicRecognition.continuous = true; notebookMicRecognition.interimResults = true; notebookMicRecognition.onresult = (e) => { let f = ''; for (let i = e.resultIndex; i < e.results.length; i++) { if (e.results[i].isFinal) f += e.results[i][0].transcript + ' '; } if (f) { editor.focus(); document.execCommand('insertText', false, f); } }; notebookMicRecognition.onerror = () => stopNotebookMic(); notebookMicRecognition.onend = () => { if (isNotebookMicListening) { try { notebookMicRecognition.start(); } catch(ex) { stopNotebookMic(); } } }; notebookMicRecognition.start(); isNotebookMicListening = true; btn.classList.add('listening'); btn.querySelector('i').className = 'fas fa-microphone-alt'; }
 function stopNotebookMic() { if (notebookMicRecognition) { try { notebookMicRecognition.stop(); } catch(e) {} } isNotebookMicListening = false; document.querySelectorAll('.toolbar-mic-btn').forEach(b => { b.classList.remove('listening'); b.querySelector('i').className = 'fas fa-microphone'; }); }
 
-// ==========================================
-// CHARGEMENT
-// ==========================================
 async function loadCourseData() { try { const r = await fetch(`/api/course/${courseId}`); const d = await r.json(); if (d.success) { courseData = d.course; document.getElementById('courseTitle').textContent = courseData.title; document.getElementById('courseMeta').textContent = `${d.notes.length} élément(s)`; allItems.supports = d.notes.filter(n => n.type === 'support'); allItems.links = d.notes.filter(n => n.type === 'link'); allItems.notes = d.notes.filter(n => n.type === 'note'); renderAll(); } } catch (e) {} }
 function renderAll() { renderSupports(); renderLinks(); renderNotes(); }
 function renderSupports() { const c = document.getElementById('supportsList'), n = document.getElementById('noSupports'); if (!c || !n) return; if (!allItems.supports.length) { c.innerHTML = ''; n.style.display = 'block'; return; } n.style.display = 'none'; c.innerHTML = allItems.supports.map(item => `<div class="item-card" onclick="${item.file_url ? `window.open('${item.file_url}','_blank')` : ''}" style="${item.file_url ? 'cursor:pointer;' : ''}"><div class="item-icon pdf"><i class="fas fa-file-pdf"></i></div><div class="item-info"><span class="item-title">${escapeHtml(item.title)}</span><span class="item-subtitle">${escapeHtml(item.content || 'Auteur inconnu')}</span></div><div class="item-actions" onclick="event.stopPropagation()"><button class="btn-icon delete" onclick="deleteItem(${item.id})"><i class="fas fa-trash"></i></button><button class="btn-icon share" onclick="shareItem('${escapeHtml(item.title)}','${item.file_url||''}')"><i class="fas fa-share-alt"></i></button>${item.file_url?`<button class="btn-icon download" onclick="downloadFile('${item.file_url}')"><i class="fas fa-download"></i></button>`:''}</div></div>`).join(''); }
@@ -51,9 +33,6 @@ function toggleMonth(h) { const c = h.nextElementSibling, t = h.querySelector('.
 function toggleWeek(e,h) { e.stopPropagation(); const c = h.nextElementSibling, t = h.querySelector('.week-toggle'); if(c) c.classList.toggle('open'); if(t) t.classList.toggle('open'); }
 function switchTab(tab) { currentTab = tab; document.querySelectorAll('.tab').forEach((t,i) => { t.classList.remove('active'); if((tab==='supports'&&i===0)||(tab==='links'&&i===1)||(tab==='notes'&&i===2)) t.classList.add('active'); }); document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); const el = document.getElementById({supports:'supportsSection',links:'linksSection',notes:'notesSection'}[tab]); if(el) el.classList.add('active'); updateSearchPlaceholder(); clearSearch(); if(tab==='supports') renderSupports(); else if(tab==='links') renderLinks(); else if(tab==='notes') renderNotes(); }
 
-// ==========================================
-// RECHERCHE
-// ==========================================
 function updateSearchPlaceholder() { const i = document.getElementById('searchInput'); if(i) i.placeholder = {supports:'🔍 Titre ou auteur...',links:'🔍 Titre ou URL...',notes:'🔍 Titre, date ou contenu...'}[currentTab]||'🔍 Rechercher...'; }
 function performSearch(term) { if(!term) { restoreAllViews(); return; } const t = term.toLowerCase().trim(); if(currentTab==='supports') searchSupports(t); else if(currentTab==='links') searchLinks(t); else if(currentTab==='notes') searchNotes(t); }
 function restoreAllViews() { if(currentTab==='supports') renderSupports(); else if(currentTab==='links') renderLinks(); else if(currentTab==='notes') renderNotes(); }
@@ -67,14 +46,8 @@ function similarity(a,b){if(!a||!b)return 0;const m=[];for(let i=0;i<=a.length;i
 function highlightMatch(text,term){if(!text||!term)return escapeHtml(text);const escaped=escapeHtml(text),regex=new RegExp(`(${escapeHtml(term).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');return escaped.replace(regex,'<mark style="background:rgba(245,158,11,0.3);padding:2px 4px;border-radius:3px;">$1</mark>');}
 function clearSearch(){document.getElementById('searchInput').value='';document.getElementById('clearSearch').style.display='none';restoreAllViews();}
 
-// ==========================================
-// MICRO BARRE DE RECHERCHE
-// ==========================================
 function addMicButtonToSearch(inputElement) { const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if(!SR)return; const btn = document.createElement('button'); btn.type='button'; btn.className='mic-btn'; btn.innerHTML='<i class="fas fa-microphone"></i>'; btn.title='Dicter'; btn.style.cssText='position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--input-bg);border:1px solid var(--border);cursor:pointer;font-size:1em;padding:6px 10px;border-radius:20px;z-index:10;color:var(--text-muted);display:flex;align-items:center;'; inputElement.parentElement.style.position='relative'; inputElement.parentElement.appendChild(btn); let rec=null, listening=false; btn.addEventListener('click',()=>{ if(listening){if(rec)rec.stop();listening=false;btn.classList.remove('listening');btn.innerHTML='<i class="fas fa-microphone"></i>';btn.style.background='var(--input-bg)';btn.style.color='var(--text-muted)';return;} rec=new SR();rec.lang='fr-FR';rec.continuous=false;rec.interimResults=true; rec.onresult=(e)=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;inputElement.value=t;inputElement.dispatchEvent(new Event('input'));}; rec.onerror=()=>{listening=false;btn.classList.remove('listening');btn.innerHTML='<i class="fas fa-microphone"></i>';}; rec.onend=()=>{listening=false;btn.classList.remove('listening');btn.innerHTML='<i class="fas fa-microphone"></i>';}; rec.start();listening=true;btn.classList.add('listening');btn.innerHTML='<i class="fas fa-microphone-alt"></i>';btn.style.background='#ef4444';btn.style.color='#fff'; }); }
 
-// ==========================================
-// MODAL AJOUT
-// ==========================================
 function openAddModal(){document.getElementById('addModal').style.display='flex';resetAddForm();}
 function closeAddModal(){document.getElementById('addModal').style.display='none';resetAddForm();}
 function resetAddForm(){ document.getElementById('itemType').value='';document.getElementById('pdfForm').style.display='none';document.getElementById('linkForm').style.display='none';document.getElementById('noteForm').style.display='none'; document.getElementById('submitItemBtn').style.display='inline-flex';document.getElementById('submitItemBtn').disabled=true;document.getElementById('submitItemBtn').onclick=null; document.getElementById('modalMessage').classList.remove('show'); document.getElementById('pdfTitle').value='';document.getElementById('pdfAuthor').value='';document.getElementById('pdfFile').value=''; document.getElementById('linkTitle').value='';document.getElementById('linkUrl').value=''; }
@@ -83,24 +56,15 @@ async function submitPdf(){ const title=document.getElementById('pdfTitle').valu
 async function submitLink(){ const title=document.getElementById('linkTitle').value.trim(),url=document.getElementById('linkUrl').value.trim(); if(!title||!url){showModalMessage('Titre et URL requis.','error');return;} try{const r=await fetch('/api/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course_id:courseId,title,content:url,type:'link'})});const d=await r.json();if(d.success){closeAddModal();loadCourseData();}else showModalMessage(d.message,'error');}catch(e){showModalMessage('Erreur.','error');} }
 function showModalMessage(text,type){const el=document.getElementById('modalMessage');el.textContent=text;el.className=`alert alert-${type} show`;}
 
-// ==========================================
-// CAHIER DE NOTES
-// ==========================================
 function openNotebook(){document.getElementById('notebookModal').style.display='flex';document.getElementById('noteTitle').value='';document.getElementById('noteContent').innerHTML='';document.getElementById('noteTitle').focus();updateCurrentDate();}
 function closeNotebook(){stopNotebookMic();document.getElementById('notebookModal').style.display='none';}
 function updateCurrentDate(){const d=new Date();const el=document.getElementById('noteDate');if(el)el.textContent=d.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});}
 async function saveNoteFromNotebook(){ const title=document.getElementById('noteTitle').value.trim(),content=document.getElementById('noteContent').innerHTML.trim(); if(!title){alert('Veuillez entrer un titre.');return;} if(!content||content==='<br>'){alert('Veuillez écrire quelque chose.');return;} try{const r=await fetch('/api/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({course_id:courseId,title,content,type:'note'})});const d=await r.json();if(d.success){closeNotebook();closeAddModal();loadCourseData();}else alert(d.message);}catch(e){alert('Erreur.');} }
 
-// ==========================================
-// MODIFIER NOTE
-// ==========================================
 function editNote(noteId){const note=allItems.notes.find(n=>n.id===noteId);if(!note)return;noteBeingEdited=noteId;document.getElementById('editNoteModal').style.display='flex';document.getElementById('editNoteTitle').value=note.title||'';document.getElementById('editNoteContent').innerHTML=note.content||'';setTimeout(()=>document.getElementById('editNoteTitle').focus(),100);}
 function closeEditNote(){stopNotebookMic();document.getElementById('editNoteModal').style.display='none';noteBeingEdited=null;}
 async function saveEditedNote(){ if(!noteBeingEdited)return; const title=document.getElementById('editNoteTitle').value.trim(),content=document.getElementById('editNoteContent').innerHTML.trim(); if(!title){alert('Titre requis.');return;} if(!content||content==='<br>'){alert('La note ne peut pas être vide.');return;} try{const r=await fetch(`/api/notes/${noteBeingEdited}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content})});const d=await r.json();if(d.success){closeEditNote();loadCourseData();}else alert(d.message);}catch(e){alert('Erreur.');} }
 
-// ==========================================
-// SUPPRIMER / PARTAGER / TÉLÉCHARGER
-// ==========================================
 async function deleteItem(id){if(!confirm('Mettre dans la corbeille ?'))return;try{const r=await fetch(`/api/notes/${id}`,{method:'DELETE'});if((await r.json()).success)loadCourseData();}catch(e){}}
 function shareItem(title,url){if(navigator.share)navigator.share({title,url:url||window.location.href}).catch(()=>{});else navigator.clipboard.writeText(url||window.location.href).then(()=>alert('Lien copié !')).catch(()=>{});}
 function shareNote(id){const n=allItems.notes.find(x=>x.id===id);if(n)shareItem(n.title,'');}
@@ -108,9 +72,6 @@ function downloadFile(url){if(url)window.open(url,'_blank');}
 function downloadNote(id){const n=allItems.notes.find(x=>x.id===id);if(!n)return;const c=`Titre: ${n.title}\nDate: ${new Date(n.created_at).toLocaleString('fr-FR')}\n\n${stripHtml(n.content||'')}`;const b=new Blob([c],{type:'text/plain;charset=utf-8'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`${n.title.replace(/\s+/g,'_')}.txt`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
 function openLink(url){if(url)window.open(url.startsWith('http')?url:'https://'+url,'_blank');}
 
-// ==========================================
-// UTILITAIRES
-// ==========================================
 function escapeHtml(text){if(!text)return'';const d=document.createElement('div');d.textContent=text;return d.innerHTML;}
 function stripHtml(html){if(!html)return'';const d=document.createElement('div');d.innerHTML=html;return d.textContent||d.innerText||'';}
 function capitalizeFirst(s){if(!s)return'';return s.charAt(0).toUpperCase()+s.slice(1);}

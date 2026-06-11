@@ -79,46 +79,6 @@
                 <button type="button" onclick="execCmd('strikeThrough')" title="Barré"><i class="fas fa-strikethrough"></i></button>
                 <span class="toolbar-separator"></span>
                 <button type="button" onclick="execCmd('insertUnorderedList')" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
-                <button type="button" onclick="execCmd('insertOrderedList')" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
-                <span class="toolbar-separator"></span>
-                <div class="color-picker-wrapper">
-                    <button type="button" class="color-picker-btn" title="Couleur du texte" onclick="toggleColorPalette('fgPaletteNote')"><i class="fas fa-font"></i><span class="color-indicator" id="noteFgIndicator" style="background:#1a1a2e;"></span></button>
-                    <div class="color-palette" id="fgPaletteNote">
-                        <span class="color-label">Couleur du texte</span>
-                        <div class="color-swatches">
-                            <span class="color-swatch" style="background:#1a1a2e;" onclick="applyColor('foreColor','#1a1a2e','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#ef4444;" onclick="applyColor('foreColor','#ef4444','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#f97316;" onclick="applyColor('foreColor','#f97316','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#eab308;" onclick="applyColor('foreColor','#eab308','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#22c55e;" onclick="applyColor('foreColor','#22c55e','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#06b6d4;" onclick="applyColor('foreColor','#06b6d4','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#3b82f6;" onclick="applyColor('foreColor','#3b82f6','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#8b5cf6;" onclick="applyColor('foreColor','#8b5cf6','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#ec4899;" onclick="applyColor('foreColor','#ec4899','noteFgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#78716c;" onclick="applyColor('foreColor','#78716c','noteFgIndicator');event.stopPropagation();"></span>
-                        </div>
-                        <input type="color" onchange="applyColor('foreColor',this.value,'noteFgIndicator')" value="#1a1a2e">
-                    </div>
-                </div>
-                <span class="toolbar-separator"></span>
-                <div class="color-picker-wrapper">
-                    <button type="button" class="color-picker-btn highlight-btn" title="Surlignage" onclick="toggleColorPalette('bgPaletteNote')"><i class="fas fa-highlighter"></i><span class="color-indicator" id="noteBgIndicator" style="background:#fef08a;"></span></button>
-                    <div class="color-palette" id="bgPaletteNote">
-                        <span class="color-label">Surlignage</span>
-                        <div class="color-swatches">
-                            <span class="color-swatch" style="background:#fef08a;" onclick="applyColor('hiliteColor','#fef08a','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#bbf7d0;" onclick="applyColor('hiliteColor','#bbf7d0','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#bfdbfe;" onclick="applyColor('hiliteColor','#bfdbfe','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#fecaca;" onclick="applyColor('hiliteColor','#fecaca','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#fed7aa;" onclick="applyColor('hiliteColor','#fed7aa','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#e9d5ff;" onclick="applyColor('hiliteColor','#e9d5ff','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#fce7f3;" onclick="applyColor('hiliteColor','#fce7f3','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#e5e7eb;" onclick="applyColor('hiliteColor','#e5e7eb','noteBgIndicator');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:transparent;border:2px dashed #ccc;" onclick="applyColor('hiliteColor','transparent','noteBgIndicator');event.stopPropagation();"></span>
-                        </div>
-                        <input type="color" onchange="applyColor('hiliteColor',this.value,'noteBgIndicator')" value="#fef08a">
-                    </div>
-                </div>
                 <span class="toolbar-separator"></span>
                 <button type="button" onclick="execCmd('removeFormat')" title="Effacer formatage"><i class="fas fa-remove-format"></i></button>
                 <span class="toolbar-spacer"></span>
@@ -145,46 +105,6 @@
                 <button type="button" onclick="execCmd('strikeThrough',null,'editNoteContent')" title="Barré"><i class="fas fa-strikethrough"></i></button>
                 <span class="toolbar-separator"></span>
                 <button type="button" onclick="execCmd('insertUnorderedList',null,'editNoteContent')" title="Liste"><i class="fas fa-list-ul"></i></button>
-                <button type="button" onclick="execCmd('insertOrderedList',null,'editNoteContent')" title="Numérotation"><i class="fas fa-list-ol"></i></button>
-                <span class="toolbar-separator"></span>
-                <div class="color-picker-wrapper">
-                    <button type="button" class="color-picker-btn" title="Couleur du texte" onclick="toggleColorPalette('fgPaletteEdit')"><i class="fas fa-font"></i><span class="color-indicator" id="editFgIndicator" style="background:#1a1a2e;"></span></button>
-                    <div class="color-palette" id="fgPaletteEdit">
-                        <span class="color-label">Couleur du texte</span>
-                        <div class="color-swatches">
-                            <span class="color-swatch" style="background:#1a1a2e;" onclick="applyColor('foreColor','#1a1a2e','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#ef4444;" onclick="applyColor('foreColor','#ef4444','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#f97316;" onclick="applyColor('foreColor','#f97316','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#eab308;" onclick="applyColor('foreColor','#eab308','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#22c55e;" onclick="applyColor('foreColor','#22c55e','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#06b6d4;" onclick="applyColor('foreColor','#06b6d4','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#3b82f6;" onclick="applyColor('foreColor','#3b82f6','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#8b5cf6;" onclick="applyColor('foreColor','#8b5cf6','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#ec4899;" onclick="applyColor('foreColor','#ec4899','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#78716c;" onclick="applyColor('foreColor','#78716c','editFgIndicator','editNoteContent');event.stopPropagation();"></span>
-                        </div>
-                        <input type="color" onchange="applyColor('foreColor',this.value,'editFgIndicator','editNoteContent')" value="#1a1a2e">
-                    </div>
-                </div>
-                <span class="toolbar-separator"></span>
-                <div class="color-picker-wrapper">
-                    <button type="button" class="color-picker-btn highlight-btn" title="Surlignage" onclick="toggleColorPalette('bgPaletteEdit')"><i class="fas fa-highlighter"></i><span class="color-indicator" id="editBgIndicator" style="background:#fef08a;"></span></button>
-                    <div class="color-palette" id="bgPaletteEdit">
-                        <span class="color-label">Surlignage</span>
-                        <div class="color-swatches">
-                            <span class="color-swatch" style="background:#fef08a;" onclick="applyColor('hiliteColor','#fef08a','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#bbf7d0;" onclick="applyColor('hiliteColor','#bbf7d0','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#bfdbfe;" onclick="applyColor('hiliteColor','#bfdbfe','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#fecaca;" onclick="applyColor('hiliteColor','#fecaca','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#fed7aa;" onclick="applyColor('hiliteColor','#fed7aa','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#e9d5ff;" onclick="applyColor('hiliteColor','#e9d5ff','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#fce7f3;" onclick="applyColor('hiliteColor','#fce7f3','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:#e5e7eb;" onclick="applyColor('hiliteColor','#e5e7eb','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                            <span class="color-swatch" style="background:transparent;border:2px dashed #ccc;" onclick="applyColor('hiliteColor','transparent','editBgIndicator','editNoteContent');event.stopPropagation();"></span>
-                        </div>
-                        <input type="color" onchange="applyColor('hiliteColor',this.value,'editBgIndicator','editNoteContent')" value="#fef08a">
-                    </div>
-                </div>
                 <span class="toolbar-separator"></span>
                 <button type="button" onclick="execCmd('removeFormat',null,'editNoteContent')" title="Effacer formatage"><i class="fas fa-remove-format"></i></button>
                 <span class="toolbar-spacer"></span>
