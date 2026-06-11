@@ -90,14 +90,7 @@ function displayCourses(courses) {
     if (!courses || courses.length === 0) {
         coursesGrid.innerHTML = '';
         noCourses.style.display = 'block';
-        noCourses.innerHTML = `
-            <div class="empty-icon">📖</div>
-            <h2>Aucun cours pour le moment</h2>
-            <p>Commencez par ajouter votre premier cours !</p>
-            <button onclick="showAddCourseModal()" class="btn btn-submit btn-large">
-                <i class="fas fa-plus"></i> Ajouter un cours
-            </button>
-        `;
+        noCourses.innerHTML = `<div class="empty-icon">📖</div><h2>Aucun cours pour le moment</h2><p>Commencez par ajouter votre premier cours !</p><button onclick="showAddCourseModal()" class="btn btn-submit btn-large"><i class="fas fa-plus"></i> Ajouter un cours</button>`;
         addCourseBottom.style.display = 'none';
         return;
     }
@@ -110,7 +103,8 @@ function displayCourses(courses) {
             <div class="course-card-body">
                 <h3 class="course-card-title">${escapeHtml(course.title)}</h3>
                 <div class="course-card-professor"><i class="fas fa-user-tie"></i> ${course.professor ? escapeHtml(course.professor) : '---------'}</div>
-                <div class="course-card-meta">📝 ${course.noteCount || 0} note(s) • 📅 ${new Date(course.created_at).toLocaleDateString('fr-FR')}</div>
+                <div class="course-card-meta">📝 ${course.noteCount || 0} note(s)</div>
+                <div class="course-card-date">📅 ${new Date(course.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                 <div class="course-card-actions" onclick="event.stopPropagation()">
                     <a href="/course?id=${course.id}" class="btn-enter">📖 Voir le cours</a>
                     <button onclick="deleteCourse(${course.id})" class="btn-danger">🗑️</button>
