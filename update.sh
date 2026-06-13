@@ -24,10 +24,15 @@ npm install
 # Arrêter l'ancien serveur
 echo "🛑 Arrêt de l'ancien serveur..."
 pkill -f "node server.js"
-
+sleep 2
+clear
 # Démarrer le nouveau serveur en arrière-plan
 echo "🚀 Démarrage du nouveau serveur..."
 nohup node server.js > server.log 2>&1 &
-
+sleep 2
+clear
 echo "✅ GeNot a été mis à jour avec succès !"
+sleep 2
 echo "📋 Logs disponibles dans : server.log"
+sleep 2
+clear
