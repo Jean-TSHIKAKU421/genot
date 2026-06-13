@@ -983,6 +983,19 @@ app.post('/api/save-theme', async (req, res) => {
 });
 
 // ==========================================
+// API RAFRAÎCHIR LES DONNÉES SUR MOBILE
+// ==========================================
+
+app.get('/api/user/:matricule', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM users WHERE matricule = ?', [req.params.matricule]);
+        if (rows.length === 0) return res.status(404).json({ success: false });
+        const { password, ...user } = rows[0];
+        res.json({ success: true, user });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+// ==========================================
 // DÉMARRAGE
 // ==========================================
 app.listen(PORT, () => {

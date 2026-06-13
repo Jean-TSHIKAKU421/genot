@@ -1,5 +1,10 @@
 #!/bin/bash
 
+echo "🔄 Mise à jour de GeNot sur GitHub..."
+git add .
+git commit -m "Mise à jour automatique"
+git push
+
 echo "🔄 Mise à jour de GeNot..."
 
 # Aller dans le dossier du projet
