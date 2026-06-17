@@ -5,7 +5,7 @@ const mysql = require('mysql2/promise');
 const multer = require('multer');
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3500;
+const PORT = process.env.PORT || 8100;
 
 // ==========================================
 // CONFIGURATION MYSQL
@@ -95,11 +95,8 @@ const uploadProfile = multer({
 // TEST CONNEXION MYSQL
 // ==========================================
 async function testConnection() {
-    try {
-        const connection = await pool.getConnection();
-        console.log('✅ Connecté à MySQL');
-        connection.release();
-    } catch (err) { console.error('❌ Erreur MySQL:', err.message); }
+    try { const c = await pool.getConnection(); console.log('✅ MySQL connecté'); c.release(); }
+    catch (err) { console.error('❌ MySQL:', err.message); }
 }
 testConnection();
 
@@ -117,7 +114,7 @@ app.get('/settings', (req, res) => res.sendFile(path.join(__dirname, 'public', '
 // ==========================================
 // API PING
 // ==========================================
-app.get('/api/ping', (req, res) => { res.json({ success: true, message: 'pong', timestamp: new Date().toISOString() }); });
+app.get('/api/ping', (req, res) => { res.json({ success: true, message: 'pong' }); });
 
 // ==========================================
 // API INSCRIPTION
@@ -125,10 +122,10 @@ app.get('/api/ping', (req, res) => { res.json({ success: true, message: 'pong', 
 app.post('/api/register', async (req, res) => {
     try {
         const { nom, matricule, email, password, question1, reponse1, question2, reponse2 } = req.body;
-        if (!nom || !matricule || !password || !question1 || !reponse1 || !question2 || !reponse2) { return res.status(400).json({ success: false, message: 'Champs obligatoires manquants.' }); }
+        if (!nom || !matricule || !password || !question1 || !reponse1 || !question2 || !reponse2) return res.status(400).json({ success: false, message: 'Champs obligatoires manquants.' });
         const [existing] = await pool.query('SELECT id FROM users WHERE matricule = ?', [matricule]);
-        if (existing.length > 0) return res.status(409).json({ success: false, message: 'Ce matricule existe déjà.' });
-        if (email) { const [e] = await pool.query('SELECT id FROM users WHERE email = ?', [email]); if (e.length > 0) return res.status(409).json({ success: false, message: 'Email déjà utilisé.' }); }
+        if (existing.length > 0) return res.status(409).json({ success: false, message: 'Matricule existant.' });
+        if (email) { const [e] = await pool.query('SELECT id FROM users WHERE email = ?', [email]); if (e.length > 0) return res.status(409).json({ success: false, message: 'Email existant.' }); }
         await pool.query('INSERT INTO users (nom, matricule, email, password, question1, reponse1, question2, reponse2) VALUES (?,?,?,?,?,?,?,?)', [nom, matricule, email||'', password, question1, reponse1, question2, reponse2]);
         const userDir = path.join(__dirname, 'public', 'uploads', matricule);
         ['images','pdfs','videos'].forEach(d => { const dir = path.join(userDir, d); if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); });
@@ -145,7 +142,7 @@ app.post('/api/login', async (req, res) => {
         if (!matricule || !password) return res.status(400).json({ success: false, message: 'Matricule et mot de passe requis.' });
         const [rows] = await pool.query('SELECT * FROM users WHERE matricule = ? AND password = ?', [matricule, password]);
         if (rows.length === 0) return res.status(401).json({ success: false, message: 'Identifiants incorrects.' });
-        const user = rows[0]; const { password: _, ...safeUser } = user;
+        const { password: _, ...safeUser } = rows[0];
         res.json({ success: true, user: safeUser });
     } catch (err) { res.status(500).json({ success: false, message: 'Erreur serveur.' }); }
 });
@@ -162,22 +159,16 @@ app.get('/api/security-questions/:matricule', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// ==========================================
-// API VÉRIFICATION RÉPONSES
-// ==========================================
 app.post('/api/verify-security-answers', async (req, res) => {
     try {
         const { matricule, reponse1, reponse2 } = req.body;
         const [rows] = await pool.query('SELECT reponse1, reponse2 FROM users WHERE matricule = ?', [matricule]);
         if (rows.length === 0) return res.status(404).json({ success: false });
-        if (rows[0].reponse1.toLowerCase() === reponse1.toLowerCase() && rows[0].reponse2.toLowerCase() === reponse2.toLowerCase()) { res.json({ success: true }); }
-        else { res.status(400).json({ success: false, message: 'Réponses incorrectes.' }); }
+        if (rows[0].reponse1.toLowerCase() === reponse1.toLowerCase() && rows[0].reponse2.toLowerCase() === reponse2.toLowerCase()) res.json({ success: true });
+        else res.status(400).json({ success: false, message: 'Réponses incorrectes.' });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// ==========================================
-// API RÉINITIALISATION MOT DE PASSE
-// ==========================================
 app.post('/api/reset-password', async (req, res) => {
     try {
         const { matricule, newPassword } = req.body;
@@ -198,10 +189,7 @@ app.put('/api/update-profile/:matricule', async (req, res) => {
         if (user.length === 0) return res.status(404).json({ success: false });
         const updates = [], values = [];
         if (nom !== undefined) { updates.push('nom = ?'); values.push(nom); }
-        if (email !== undefined) {
-            if (email && email !== user[0].email) { const [e] = await pool.query('SELECT id FROM users WHERE email = ? AND matricule != ?', [email, matricule]); if (e.length > 0) return res.status(409).json({ success: false, message: 'Email déjà utilisé.' }); }
-            updates.push('email = ?'); values.push(email || null);
-        }
+        if (email !== undefined) { if (email && email !== user[0].email) { const [e] = await pool.query('SELECT id FROM users WHERE email = ? AND matricule != ?', [email, matricule]); if (e.length > 0) return res.status(409).json({ success: false, message: 'Email déjà utilisé.' }); } updates.push('email = ?'); values.push(email || null); }
         if (updates.length === 0) return res.status(400).json({ success: false });
         values.push(matricule);
         await pool.query(`UPDATE users SET ${updates.join(', ')} WHERE matricule = ?`, values);
@@ -211,9 +199,6 @@ app.put('/api/update-profile/:matricule', async (req, res) => {
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
-// ==========================================
-// API UPLOAD PHOTO PROFIL
-// ==========================================
 app.post('/api/upload-profile-photo/:matricule', (req, res) => {
     uploadProfile.single('photo')(req, res, async (err) => {
         if (err) return res.status(400).json({ success: false, message: err.message });
@@ -231,22 +216,44 @@ app.post('/api/upload-profile-photo/:matricule', (req, res) => {
 });
 
 // ==========================================
-// API ADMIN - STATS
+// API VISITES
 // ==========================================
-app.get('/api/admin/stats', async (req, res) => {
+app.post('/api/visits', async (req, res) => {
     try {
-        const [users] = await pool.query('SELECT COUNT(*) as total FROM users');
-        const [courses] = await pool.query('SELECT COUNT(*) as total FROM courses WHERE deleted_at IS NULL');
-        const [notes] = await pool.query('SELECT COUNT(*) as total FROM notes WHERE deleted_at IS NULL');
-        const [pdfs] = await pool.query("SELECT COUNT(*) as total FROM notes WHERE type='support' AND deleted_at IS NULL");
-        const [links] = await pool.query("SELECT COUNT(*) as total FROM notes WHERE type='link' AND deleted_at IS NULL");
-        res.json({ success: true, stats: { users: users[0].total, courses: courses[0].total, notes: notes[0].total, pdfs: pdfs[0].total, links: links[0].total }});
+        const { platform, page } = req.body;
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const ua = req.headers['user-agent'] || '';
+        await pool.query('INSERT INTO visits (platform, page, ip_address, user_agent) VALUES (?,?,?,?)', [platform||'web', page||'/', ip, ua]);
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
+app.get('/api/admin/visits', async (req, res) => {
+    try {
+        const [[total]] = await pool.query('SELECT COUNT(*) as count FROM visits');
+        const [[today]] = await pool.query('SELECT COUNT(*) as count FROM visits WHERE DATE(created_at) = CURDATE()');
+        const [[week]] = await pool.query('SELECT COUNT(*) as count FROM visits WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)');
+        const [platforms] = await pool.query('SELECT platform, COUNT(*) as count FROM visits GROUP BY platform');
+        const [daily] = await pool.query('SELECT DATE(created_at) as date, COUNT(*) as count FROM visits WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY DATE(created_at) ORDER BY date');
+        const [pages] = await pool.query('SELECT page, COUNT(*) as count FROM visits GROUP BY page ORDER BY count DESC LIMIT 10');
+        res.json({ success: true, total: total.count, today: today.count, week: week.count, platforms, daily, pages });
     } catch (err) { res.status(500).json({ success: false }); }
 });
 
 // ==========================================
-// API ADMIN - SQL
+// API ADMIN - STATS
 // ==========================================
+app.get('/api/admin/stats', async (req, res) => {
+    try {
+        const [[users]] = await pool.query('SELECT COUNT(*) as total FROM users');
+        const [[courses]] = await pool.query('SELECT COUNT(*) as total FROM courses WHERE deleted_at IS NULL');
+        const [[notes]] = await pool.query('SELECT COUNT(*) as total FROM notes WHERE deleted_at IS NULL');
+        const [[pdfs]] = await pool.query("SELECT COUNT(*) as total FROM notes WHERE type='support' AND deleted_at IS NULL");
+        const [[links]] = await pool.query("SELECT COUNT(*) as total FROM notes WHERE type='link' AND deleted_at IS NULL");
+        res.json({ success: true, stats: { users: users.total, courses: courses.total, notes: notes.total, pdfs: pdfs.total, links: links.total }});
+    } catch (err) { res.status(500).json({ success: false }); }
+});
+
 app.post('/api/admin/sql', async (req, res) => {
     const { query } = req.body;
     if (!query) return res.status(400).json({ success: false });
@@ -254,9 +261,6 @@ app.post('/api/admin/sql', async (req, res) => {
     catch (err) { res.status(400).json({ success: false, message: err.message }); }
 });
 
-// ==========================================
-// API ADMIN - SUPPRIMER UTILISATEUR
-// ==========================================
 app.delete('/api/admin/user/:matricule', async (req, res) => {
     try {
         await pool.query('DELETE FROM notes WHERE course_id IN (SELECT id FROM courses WHERE user_matricule = ?)', [req.params.matricule]);
@@ -272,7 +276,7 @@ app.delete('/api/admin/user/:matricule', async (req, res) => {
 app.get('/api/courses/:matricule', async (req, res) => {
     try {
         const [courses] = await pool.query('SELECT * FROM courses WHERE user_matricule = ? AND deleted_at IS NULL ORDER BY created_at DESC', [req.params.matricule]);
-        for (let c of courses) { const [n] = await pool.query('SELECT COUNT(*) as count FROM notes WHERE course_id = ? AND deleted_at IS NULL', [c.id]); c.noteCount = n[0].count; }
+        for (let c of courses) { const [[n]] = await pool.query('SELECT COUNT(*) as count FROM notes WHERE course_id = ? AND deleted_at IS NULL', [c.id]); c.noteCount = n.count; }
         res.json({ success: true, courses });
     } catch (err) { res.status(500).json({ success: false }); }
 });
@@ -285,8 +289,7 @@ app.post('/api/courses', (req, res) => {
             if (!title || !user_matricule) return res.status(400).json({ success: false, message: 'Titre et matricule requis.' });
             let imageUrl = null;
             if (req.file) {
-                const courseTitle = title.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase();
-                const ext = path.extname(req.file.originalname);
+                const courseTitle = title.replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase(), ext = path.extname(req.file.originalname);
                 const userDir = path.join(__dirname, 'public', 'uploads', user_matricule, 'images');
                 if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
                 const newPath = path.join(userDir, `${courseTitle}${ext}`);
@@ -308,16 +311,15 @@ app.put('/api/courses/:id', (req, res) => {
             const courseId = req.params.id; const { title, professor, description } = req.body;
             const [existing] = await pool.query('SELECT * FROM courses WHERE id = ? AND deleted_at IS NULL', [courseId]);
             if (existing.length === 0) return res.status(404).json({ success: false });
-            const oldCourse = existing[0]; const matricule = oldCourse.user_matricule;
+            const old = existing[0]; const matricule = old.user_matricule;
             const updates = [], values = [];
             if (title !== undefined) { updates.push('title = ?'); values.push(title); }
             if (professor !== undefined) { updates.push('professor = ?'); values.push(professor||null); }
             if (description !== undefined) { updates.push('description = ?'); values.push(description||null); }
-            let imageUrl = oldCourse.image_url;
+            let imageUrl = old.image_url;
             if (req.file) {
-                if (oldCourse.image_url) { const p = path.join(__dirname, 'public', oldCourse.image_url); if (fs.existsSync(p)) fs.unlinkSync(p); }
-                const courseTitle = (title || oldCourse.title).replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase();
-                const ext = path.extname(req.file.originalname);
+                if (old.image_url) { const p = path.join(__dirname, 'public', old.image_url); if (fs.existsSync(p)) fs.unlinkSync(p); }
+                const courseTitle = (title || old.title).replace(/[^a-zA-Z0-9\-_]/g, '_').toLowerCase(), ext = path.extname(req.file.originalname);
                 const userDir = path.join(__dirname, 'public', 'uploads', matricule, 'images');
                 if (!fs.existsSync(userDir)) fs.mkdirSync(userDir, { recursive: true });
                 const newPath = path.join(userDir, `${courseTitle}${ext}`);
@@ -363,8 +365,7 @@ app.post('/api/notes', (req, res) => {
             if (!course_id || !title) return res.status(400).json({ success: false, message: 'Cours et titre requis.' });
             let fileUrl = null;
             if (req.file) {
-                const matricule = user_matricule || 'unknown';
-                const fileExt = path.extname(req.file.filename).toLowerCase();
+                const matricule = user_matricule || 'unknown', fileExt = path.extname(req.file.filename).toLowerCase();
                 let subFolder = 'pdfs';
                 if (['.jpg','.jpeg','.png','.gif','.webp','.bmp'].includes(fileExt)) subFolder = 'images';
                 else if (['.mp4','.avi','.mov','.mkv','.webm'].includes(fileExt)) subFolder = 'videos';
@@ -462,9 +463,6 @@ app.post('/api/save-theme', async (req, res) => {
     catch (err) { res.status(500).json({ success: false }); }
 });
 
-// ==========================================
-// API USER (mobile)
-// ==========================================
 app.get('/api/user/:matricule', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM users WHERE matricule = ?', [req.params.matricule]);

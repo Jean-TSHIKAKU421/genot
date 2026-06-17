@@ -289,5 +289,15 @@
 
     <script src="js/theme.js"></script>
     <script src="js/home.js"></script>
+    <!-- Tracking des visites -->
+    <script>
+    (function() {
+        fetch('/api/visits', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ platform: 'web', page: 'home' }) 
+        }).catch(() => {});
+    })();
+    </script>
 </body>
 </html>
