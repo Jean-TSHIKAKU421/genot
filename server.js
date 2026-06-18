@@ -5,7 +5,7 @@ const mysql = require('mysql2/promise');
 const multer = require('multer');
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 8100;
+const PORT = process.env.PORT || 3500;
 
 // ==========================================
 // CONFIGURATION MYSQL
@@ -216,14 +216,18 @@ app.post('/api/upload-profile-photo/:matricule', (req, res) => {
 });
 
 // ==========================================
-// API VISITES
+// API VISITES (avec dédoublonnage par IP + plateforme + jour)
 // ==========================================
 app.post('/api/visits', async (req, res) => {
     try {
-        const { platform, page } = req.body;
+        const { platform, page, matricule } = req.body;
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         const ua = req.headers['user-agent'] || '';
-        await pool.query('INSERT INTO visits (platform, page, ip_address, user_agent) VALUES (?,?,?,?)', [platform||'web', page||'/', ip, ua]);
+        const today = new Date().toISOString().split('T')[0];
+        const [existing] = await pool.query('SELECT id FROM visits WHERE ip_address = ? AND platform = ? AND DATE(created_at) = ?', [ip, platform || 'web', today]);
+        if (existing.length === 0) {
+            await pool.query('INSERT INTO visits (platform, page, ip_address, user_agent, matricule) VALUES (?,?,?,?,?)', [platform || 'web', page || '/', ip, ua, matricule || null]);
+        }
         res.json({ success: true });
     } catch (err) { res.status(500).json({ success: false }); }
 });
