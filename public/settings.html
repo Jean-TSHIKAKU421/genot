@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Anti-flash thème -->
     <script>
         (function() {
             const theme = localStorage.getItem('theme');
@@ -32,59 +31,46 @@
             <button class="btn-back" onclick="window.location.href='/home'">
                 <i class="fas fa-arrow-left"></i>
             </button>
-            <h1><i class="fas fa-cog"></i> Paramètres</h1>
-            <button id="theme-toggle" class="theme-toggle-btn" title="Changer le mode">
-                <span class="icon-sun">☀️</span>
-                <span class="icon-moon">🌙</span>
-            </button>
+            <h1>Paramètres</h1>
+            <div class="header-spacer"></div>
         </header>
 
-        <!-- SECTION 1 : PROFIL UTILISATEUR -->
+        <!-- ============ SECTION PROFIL ============ -->
         <div class="settings-card">
-            <div class="card-header">
-                <i class="fas fa-user-circle"></i>
-                <h2>Mon Profil</h2>
-            </div>
             <div class="card-body">
-                <!-- Avatar grand centré -->
+                <!-- Avatar grand centré avec badge -->
                 <div class="profile-avatar-section">
                     <div class="profile-avatar-wrapper-large" onclick="confirmEdit('photo')">
                         <div class="profile-avatar-xlarge" id="profileAvatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <div class="avatar-overlay-large">
+                        <div class="avatar-badge">
                             <i class="fas fa-camera"></i>
-                            <span>Modifier</span>
                         </div>
                     </div>
                     <h3 class="profile-name-main" id="profileName">---</h3>
                     <span class="profile-matricule-badge" id="profileMatricule">---</span>
                 </div>
 
-                <!-- Infos -->
+                <!-- Grille d'infos 2x2 -->
                 <div class="info-grid">
                     <div class="info-item editable" onclick="confirmEdit('nom')">
-                        <span class="info-label"><i class="fas fa-user"></i> Nom complet</span>
+                        <span class="info-icon"><i class="fas fa-user"></i></span>
                         <span class="info-value" id="infoNom">---</span>
                         <span class="edit-hint"><i class="fas fa-pen"></i></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label"><i class="fas fa-id-card"></i> Matricule</span>
+                        <span class="info-icon"><i class="fas fa-id-card"></i></span>
                         <span class="info-value" id="infoMatricule">---</span>
                     </div>
                     <div class="info-item editable" onclick="confirmEdit('email')">
-                        <span class="info-label"><i class="fas fa-envelope"></i> Email</span>
-                        <span class="info-value" id="infoEmail">---</span>
+                        <span class="info-icon"><i class="fas fa-envelope"></i></span>
+                        <span class="info-value" id="infoEmail">Non renseigné</span>
                         <span class="edit-hint"><i class="fas fa-pen"></i></span>
                     </div>
                     <div class="info-item">
-                        <span class="info-label"><i class="fas fa-calendar-alt"></i> Inscrit le</span>
-                        <span class="info-value" id="infoDate">---</span>
-                    </div>
-                    <div class="info-item editable" onclick="confirmEdit('theme')">
-                        <span class="info-label"><i class="fas fa-palette"></i> Thème</span>
+                        <span class="info-icon"><i class="fas fa-palette"></i></span>
                         <span class="info-value" id="infoTheme">---</span>
-                        <span class="edit-hint"><i class="fas fa-pen"></i></span>
                     </div>
                 </div>
 
@@ -92,63 +78,60 @@
                 <h3 class="section-subtitle"><i class="fas fa-chart-bar"></i> Statistiques</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
+                        <span class="stat-icon"><i class="fas fa-book"></i></span>
                         <span class="stat-number" id="statCourses">0</span>
                         <span class="stat-label">Cours</span>
                     </div>
                     <div class="stat-card">
+                        <span class="stat-icon"><i class="fas fa-sticky-note"></i></span>
                         <span class="stat-number" id="statNotes">0</span>
                         <span class="stat-label">Notes</span>
                     </div>
                     <div class="stat-card">
+                        <span class="stat-icon"><i class="fas fa-file-pdf"></i></span>
                         <span class="stat-number" id="statPdfs">0</span>
                         <span class="stat-label">PDFs</span>
                     </div>
                     <div class="stat-card">
+                        <span class="stat-icon"><i class="fas fa-link"></i></span>
                         <span class="stat-number" id="statLinks">0</span>
                         <span class="stat-label">Liens</span>
                     </div>
                 </div>
+
+                <!-- Statut connexion -->
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <span class="status-text" id="statusText">Vérification...</span>
+                    <span class="status-dot" id="statusDot"></span>
+                </div>
             </div>
         </div>
 
-        <!-- Statut connexion -->
-        <h3 class="section-subtitle"><i class="fas fa-wifi"></i> État de la connexion</h3>
-        <div class="connection-status" id="connectionStatus">
-            <span class="status-indicator" id="statusIndicator"></span>
-            <span class="status-text" id="statusText">Vérification...</span>
-        </div>
-
-        <!-- SECTION 2 : À PROPOS -->
+        <!-- ============ SECTION À PROPOS ============ -->
         <div class="settings-card">
             <div class="card-header">
                 <i class="fas fa-info-circle"></i>
                 <h2>À propos de GeNot</h2>
             </div>
             <div class="card-body">
-                <div class="about-platform">
-                    <div class="platform-logo">
-                        <img src="assets/images/logo.png" alt="GeNot" class="logo-img-large">
-                    </div>
-                    <h3>GeNot</h3>
-                    <p class="platform-version">Version 1.0</p>
-                    <p class="platform-description">
-                        Plateforme de gestion des notes de cours conçue pour les étudiants. 
-                        Centralisez vos cours, notes, supports PDF et liens utiles en un seul endroit.
-                        Ne perdez plus jamais vos précieuses ressources académiques !
-                    </p>
-                    <div class="platform-features">
-                        <span><i class="fas fa-check-circle"></i> Gestion des cours</span>
-                        <span><i class="fas fa-check-circle"></i> Notes organisées</span>
-                        <span><i class="fas fa-check-circle"></i> Supports PDF</span>
-                        <span><i class="fas fa-check-circle"></i> Liens utiles</span>
-                        <span><i class="fas fa-check-circle"></i> Corbeille sécurisée</span>
-                        <span><i class="fas fa-check-circle"></i> Mode sombre/clair</span>
-                    </div>
+                <p class="about-description">
+                    Plateforme de gestion des notes de cours conçue pour les étudiants. 
+                    Centralisez vos cours, notes, supports PDF et liens utiles en un seul endroit. 
+                    Ne perdez plus jamais vos précieuses ressources académiques !
+                </p>
+                <div class="platform-features">
+                    <span><i class="fas fa-check-circle"></i> Gestion des cours</span>
+                    <span><i class="fas fa-check-circle"></i> Notes organisées</span>
+                    <span><i class="fas fa-check-circle"></i> Supports PDF</span>
+                    <span><i class="fas fa-check-circle"></i> Liens utiles</span>
+                    <span><i class="fas fa-check-circle"></i> Corbeille sécurisée</span>
+                    <span><i class="fas fa-check-circle"></i> Mode sombre/clair</span>
                 </div>
             </div>
         </div>
 
-        <!-- SECTION 3 : DÉVELOPPEUR -->
+        <!-- ============ SECTION DÉVELOPPEUR ============ -->
         <div class="settings-card">
             <div class="card-header">
                 <i class="fas fa-code"></i>
@@ -156,8 +139,9 @@
             </div>
             <div class="card-body">
                 <div class="developer-info">
-                    <div class="dev-avatar">
-                        <span>JT</span>
+                    <!-- Diaporama photos dev -->
+                    <div class="dev-avatar-slideshow">
+                        <img id="devSlideImg" src="assets/images/dev1.jpg" alt="Jean TSHIKAKU" class="dev-avatar-large">
                     </div>
                     <h3>Jean TSHIKAKU</h3>
                     <p class="dev-role">Développeur Junior & Étudiant</p>
@@ -167,36 +151,34 @@
                         mon propre besoin d'organiser mes notes de cours.
                     </p>
                     
-                    <div class="dev-contact">
-                        <h4><i class="fas fa-address-book"></i> Me contacter</h4>
-                        
-                        <a href="https://wa.me/243832976093" target="_blank" class="contact-item whatsapp">
-                            <span class="contact-icon"><i class="fab fa-whatsapp"></i></span>
-                            <div class="contact-info">
-                                <span class="contact-label">WhatsApp</span>
-                                <span class="contact-value">+243 83 29 760 93</span>
-                            </div>
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
-                        
-                        <a href="tel:+243999543276" class="contact-item phone">
-                            <span class="contact-icon"><i class="fas fa-phone-alt"></i></span>
-                            <div class="contact-info">
-                                <span class="contact-label">Appel</span>
-                                <span class="contact-value">+243 99 95 432 76</span>
-                            </div>
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
-                        
-                        <a href="mailto:jtshikaku@gmail.com" class="contact-item email">
-                            <span class="contact-icon"><i class="fas fa-envelope"></i></span>
-                            <div class="contact-info">
-                                <span class="contact-label">Email</span>
-                                <span class="contact-value">jtshikaku@gmail.com</span>
-                            </div>
-                            <i class="fas fa-external-link-alt"></i>
-                        </a>
-                    </div>
+                    <h4 class="contact-heading">Me contacter</h4>
+                    
+                    <a href="https://wa.me/243832976093" target="_blank" class="contact-item whatsapp">
+                        <span class="contact-icon"><i class="fab fa-whatsapp"></i></span>
+                        <div class="contact-info">
+                            <span class="contact-label">WhatsApp</span>
+                            <span class="contact-value">+243 83 29 760 93</span>
+                        </div>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    
+                    <a href="tel:+243999543276" class="contact-item phone">
+                        <span class="contact-icon"><i class="fas fa-phone-alt"></i></span>
+                        <div class="contact-info">
+                            <span class="contact-label">Appel</span>
+                            <span class="contact-value">+243 99 95 432 76</span>
+                        </div>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    
+                    <a href="mailto:jtshikaku@gmail.com" class="contact-item email">
+                        <span class="contact-icon"><i class="fas fa-envelope"></i></span>
+                        <div class="contact-info">
+                            <span class="contact-label">Email</span>
+                            <span class="contact-value">jtshikaku@gmail.com</span>
+                        </div>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
                     
                     <p class="dev-copyright">
                         &copy; 2026 Jean TSHIKAKU. Tous droits réservés.
@@ -204,6 +186,11 @@
                 </div>
             </div>
         </div>
+
+        <!-- Bouton déconnexion -->
+        <button class="btn-logout" onclick="handleLogout()">
+            <i class="fas fa-sign-out-alt"></i> Se déconnecter
+        </button>
     </div>
 
     <!-- Modal édition -->
@@ -271,6 +258,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Script diaporama dev -->
+    <script>
+        const devImages = [
+            'assets/images/dev1.jpg',
+            'assets/images/dev2.jpg',
+            'assets/images/dev3.jpg',
+            'assets/images/dev4.jpg',
+            'assets/images/dev5.jpg',
+            'assets/images/dev6.jpg'
+        ];
+        let devImageIndex = 0;
+        setInterval(() => {
+            devImageIndex = (devImageIndex + 1) % devImages.length;
+            const img = document.getElementById('devSlideImg');
+            if (img) img.src = devImages[devImageIndex];
+        }, 4000);
+    </script>
 
     <script src="js/theme.js"></script>
     <script src="js/settings.js"></script>
