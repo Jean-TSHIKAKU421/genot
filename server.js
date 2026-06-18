@@ -339,4 +339,6 @@ app.post('/api/save-theme', async (req, res) => {
     catch (err) { res.status(500).json({ success: false }); }
 });
 
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+
 app.listen(PORT, () => { console.log(`🚀 GeNot prêt sur le port ${PORT}`); });
