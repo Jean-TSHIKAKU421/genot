@@ -775,25 +775,6 @@
     opacity: 0.6;
 }
 
-/* Stats avec icônes */
-.stat-icon {
-    font-size: 18px;
-    color: var(--primary-light, #818cf8);
-    margin-bottom: 6px;
-}
-
-.stat-number {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--text, #f1f5f9);
-}
-
-.stat-label {
-    font-size: 11px;
-    color: var(--text-secondary, #94a3b8);
-    margin-top: 2px;
-    font-weight: 500;
-}
 
 /* Statut connexion avec dot */
 .connection-status {
@@ -883,75 +864,6 @@
     color: var(--text-secondary, #94a3b8);
     text-align: center;
     margin-bottom: 18px;
-}
-
-/* Contact heading */
-.contact-heading {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text, #f1f5f9);
-    margin-bottom: 10px;
-}
-
-/* Contact items */
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px;
-    border-radius: 14px;
-    margin-bottom: 8px;
-    border: 1px solid var(--border, rgba(255,255,255,0.1));
-    text-decoration: none;
-    transition: all 0.2s;
-}
-
-.contact-item:hover {
-    background: var(--card-alt, rgba(255,255,255,0.05));
-}
-
-.contact-item.whatsapp .contact-icon {
-    background: rgba(37,211,102,0.15);
-    color: #25d366;
-}
-
-.contact-item.phone .contact-icon {
-    background: rgba(99,102,241,0.15);
-    color: #6366f1;
-}
-
-.contact-item.email .contact-icon {
-    background: rgba(239,68,68,0.15);
-    color: #ef4444;
-}
-
-.contact-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-}
-
-.contact-info {
-    flex: 1;
-}
-
-.contact-label {
-    display: block;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-secondary, #94a3b8);
-    margin-bottom: 2px;
-}
-
-.contact-value {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text, #f1f5f9);
 }
 
 /* Bouton déconnexion */
