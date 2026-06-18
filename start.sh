@@ -5,5 +5,5 @@ clear
 
 echo "Ouverture de phpMyAdmin dans le navigateur ..."
 xdg-open http://localhost/phpmyadmin
-
+sleep 1
 clear
