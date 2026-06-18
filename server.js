@@ -5,7 +5,7 @@ const mysql = require('mysql2/promise');
 const multer = require('multer');
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3500;
+const PORT = process.env.PORT || 8100;
 
 // ==========================================
 // CONFIGURATION MYSQL
