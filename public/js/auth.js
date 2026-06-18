@@ -150,7 +150,7 @@ if (isLoginPage) {
         if (matricule === '24AD421SI' && password === 'tikiplugg') {
             sessionStorage.setItem('currentUser', JSON.stringify({ matricule: '24AD421SI', nom: 'Admin', admin: true }));
             showMessage('✅ Connexion admin. Redirection...', 'success');
-            setTimeout(() => { window.location.href = '/admin'; }, 800);
+            setTimeout(() => { window.location.href = 'admin'; }, 800);
             return;
         }
 
