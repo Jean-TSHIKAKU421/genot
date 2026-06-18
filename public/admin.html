@@ -20,7 +20,13 @@
         <header class="admin-header">
             <a href="/home" class="btn-back"><i class="fas fa-arrow-left"></i> Retour</a>
             <h1>🛡️ Admin Panel</h1>
-            <button onclick="loadAll()" class="btn-refresh"><i class="fas fa-sync"></i></button>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <span class="icon-sun">☀️</span>
+                    <span class="icon-moon">🌙</span>
+                </button>
+                <button onclick="loadAll()" class="btn-refresh"><i class="fas fa-sync"></i></button>
+            </div>
         </header>
 
         <div class="admin-tabs">

@@ -84,5 +84,16 @@ function switchTab(tab) {
     document.getElementById(tab).classList.add('active');
     if (tab === 'visits') loadVisits();
 }
+// Thème
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const newTheme = current === 'dark' ? 'light' : 'dark';
+    if (newTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    else document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('theme', newTheme);
+});
 
 loadAll();
