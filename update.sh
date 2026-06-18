@@ -8,15 +8,7 @@ sleep 2
 clear
 
 echo "🔄 Mise à jour de GeNot sur serveur distant..."
-ssh jtt@ssh-jtt.alwaysdata.net
-
-# Aller dans le dossier du projet
-cd ~/www/genot
-
-# Récupérer les dernières modifications depuis GitHub
-echo "📥 Téléchargement des mises à jour..."
-git pull origin main
-
+ssh jtt@ssh-jtt.alwaysdata.net "cd www/genot && git fetch origin && git reset --hard origin/main && pkill -f 'node server.js' && nohup node server.js > server.log 2>&1 &"
 # Installer les nouvelles dépendances (si besoin)
 echo "📦 Installation des dépendances..."
 npm install
