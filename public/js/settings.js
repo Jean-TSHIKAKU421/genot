@@ -1,7 +1,6 @@
 // ==========================================
-// PAGE PARAMÈTRES
+// settings.js — COMPLET (compact)
 // ==========================================
-
 let currentUser = null;
 let editType = null;
 
@@ -26,9 +25,6 @@ function loadProfile() {
     else { avatarEl.innerHTML = '<i class="fas fa-user" style="font-size:50px;"></i>'; }
 }
 
-// ==========================================
-// MODAL ÉDITION
-// ==========================================
 function confirmEdit(type) {
     editType = type;
     const titles = { nom: 'Modifier le nom', email: "Modifier l'email", theme: 'Changer le thème', photo: 'Changer la photo de profil' };
@@ -71,29 +67,18 @@ async function saveEdit() {
 }
 
 // ==========================================
-// STATISTIQUES
+// STATS OPTIMISÉES (2 requêtes au lieu de 1+N)
 // ==========================================
 async function loadStats(matricule) {
     try {
         const r = await fetch(`/api/courses/${matricule}`);
         const d = await r.json();
         if (d.success) {
-            let tn = 0, tp = 0, tl = 0;
-            for (const c of d.courses) {
-                try {
-                    const nr = await fetch(`/api/course/${c.id}`);
-                    const nd = await nr.json();
-                    if (nd.success) {
-                        tn += nd.notes.filter(n => n.type === 'note').length;
-                        tp += nd.notes.filter(n => n.type === 'support').length;
-                        tl += nd.notes.filter(n => n.type === 'link').length;
-                    }
-                } catch (e) {}
-            }
+            const notes = d.allNotes || [];
             document.getElementById('statCourses').textContent = d.courses.length;
-            document.getElementById('statNotes').textContent = tn;
-            document.getElementById('statPdfs').textContent = tp;
-            document.getElementById('statLinks').textContent = tl;
+            document.getElementById('statNotes').textContent = notes.filter(n => n.type === 'note').length;
+            document.getElementById('statPdfs').textContent = notes.filter(n => n.type === 'support').length;
+            document.getElementById('statLinks').textContent = notes.filter(n => n.type === 'link').length;
         }
     } catch (e) { console.error('Stats error:', e); }
 }
@@ -109,15 +94,8 @@ function checkConnection() {
     text.textContent = 'Vérification...';
 
     const update = (online) => {
-        if (online) {
-            indicator.className = 'status-indicator online';
-            text.textContent = 'Connecté à Internet';
-            statusEl.classList.remove('offline');
-        } else {
-            indicator.className = 'status-indicator offline';
-            text.textContent = 'Pas de connexion';
-            statusEl.classList.add('offline');
-        }
+        if (online) { indicator.className = 'status-indicator online'; text.textContent = 'Connecté à Internet'; statusEl.classList.remove('offline'); }
+        else { indicator.className = 'status-indicator offline'; text.textContent = 'Pas de connexion'; statusEl.classList.add('offline'); }
     };
 
     fetch('/api/ping').then(r => r.ok ? update(true) : update(false)).catch(() => update(false));
