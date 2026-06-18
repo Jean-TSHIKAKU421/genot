@@ -4,3 +4,6 @@ public/uploads/*
 *.log
 .DS_Store
 *.sh
+.env
+update.sh
+start.sh
