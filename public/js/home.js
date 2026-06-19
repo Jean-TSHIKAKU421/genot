@@ -1,9 +1,10 @@
 // ==========================================
-// PAGE D'ACCUEIL - GESTION DES COURS (optimisé)
+// home.js
 // ==========================================
-
 let coursesData = [];
 let currentCourseId = null;
+const CL_URL = 'https://api.cloudinary.com/v1_1/dfosclwrp/image/upload';
+const CL_UP = 'genotApp';
 
 (function() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -39,9 +40,6 @@ function showWelcomeMessage(user) {
     setTimeout(() => { const toast = document.getElementById('welcomeToast'); if (toast) toast.remove(); }, 4200);
 }
 
-// ==========================================
-// CHARGEMENT OPTIMISÉ : 1 seule requête (noteCount déjà inclus)
-// ==========================================
 async function loadCourses() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
     if (!currentUser) return;
@@ -106,10 +104,30 @@ function closeAddCourseModal() { document.getElementById('add-course-modal').sty
 
 function setupAddCourseForm() {
     document.getElementById('add-course-form').addEventListener('submit', async (e) => {
-        e.preventDefault(); const currentUser = JSON.parse(sessionStorage.getItem('currentUser')); const title = document.getElementById('course-title').value.trim(); const professor = document.getElementById('course-professor').value.trim(); const description = document.getElementById('course-description').value.trim(); const imageFile = document.getElementById('course-image').files[0];
+        e.preventDefault();
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        const title = document.getElementById('course-title').value.trim();
+        const professor = document.getElementById('course-professor').value.trim();
+        const description = document.getElementById('course-description').value.trim();
+        const imageFile = document.getElementById('course-image').files[0];
         if (!title) { alert('Titre requis.'); return; }
-        const formData = new FormData(); formData.append('title', title); formData.append('user_matricule', currentUser.matricule); if (professor) formData.append('professor', professor); if (description) formData.append('description', description); if (imageFile) formData.append('image', imageFile);
-        try { const res = await fetch('/api/courses', { method: 'POST', body: formData }); const data = await res.json(); if (data.success) { closeAddCourseModal(); loadCourses(); } else alert(data.message); } catch (e) { alert('Erreur.'); }
+        let imageUrl = null;
+        if (imageFile) {
+            const cfd = new FormData(); cfd.append('file', imageFile); cfd.append('upload_preset', CL_UP); cfd.append('folder', 'courses');
+            try { const cr = await fetch(CL_URL, { method: 'POST', body: cfd }); const cd = await cr.json(); if (cd.secure_url) imageUrl = cd.secure_url; } catch (e) {}
+        }
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('user_matricule', currentUser.matricule);
+        if (professor) formData.append('professor', professor);
+        if (description) formData.append('description', description);
+        if (imageUrl) formData.append('image_url', imageUrl);
+        try {
+            const res = await fetch('/api/courses', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) { closeAddCourseModal(); loadCourses(); }
+            else alert(data.message);
+        } catch (e) { alert('Erreur.'); }
     });
 }
 
@@ -131,7 +149,9 @@ function switchToEditMode() { const course = coursesData.find(c => c.id === curr
 async function saveCourseChanges() {
     const title = document.getElementById('editCourseTitle').value.trim(); const professor = document.getElementById('editProfessor').value.trim(); const description = document.getElementById('editDescription').value.trim(); const imageFile = document.getElementById('editCourseImage').files[0];
     if (!title) { alert('Titre requis.'); return; }
-    const formData = new FormData(); formData.append('title', title); formData.append('professor', professor); formData.append('description', description); if (imageFile) formData.append('image', imageFile);
+    let imageUrl = null;
+    if (imageFile) { const cfd = new FormData(); cfd.append('file', imageFile); cfd.append('upload_preset', CL_UP); cfd.append('folder', 'courses'); try { const cr = await fetch(CL_URL, { method: 'POST', body: cfd }); const cd = await cr.json(); if (cd.secure_url) imageUrl = cd.secure_url; } catch (e) {} }
+    const formData = new FormData(); formData.append('title', title); formData.append('professor', professor); formData.append('description', description); if (imageUrl) formData.append('image_url', imageUrl);
     try { const res = await fetch(`/api/courses/${currentCourseId}`, { method: 'PUT', body: formData }); const data = await res.json(); if (data.success) { closeCourseDetail(); loadCourses(); } } catch (e) {}
 }
 

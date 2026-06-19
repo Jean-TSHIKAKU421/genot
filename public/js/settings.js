@@ -1,8 +1,10 @@
 // ==========================================
-// settings.js — COMPLET (compact)
+// settings.js
 // ==========================================
 let currentUser = null;
 let editType = null;
+const CL_URL = 'https://api.cloudinary.com/v1_1/dfosclwrp/image/upload';
+const CL_UP = 'genotApp';
 
 document.addEventListener('DOMContentLoaded', async () => {
     currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
@@ -61,14 +63,20 @@ async function saveEdit() {
     else if (editType === 'photo') {
         const file = document.getElementById('editPhoto').files[0];
         if (!file) { alert('Choisissez une photo.'); return; }
-        const fd = new FormData(); fd.append('photo', file);
-        try { const r = await fetch(`/api/upload-profile-photo/${currentUser.matricule}`, { method: 'POST', body: fd }); const d = await r.json(); if (d.success) { currentUser.photo = d.photoUrl; sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); loadProfile(); closeEditModal(); } else alert(d.message); } catch (e) { alert('Erreur.'); }
+        const cfd = new FormData(); cfd.append('file', file); cfd.append('upload_preset', CL_UP); cfd.append('folder', 'profiles');
+        try {
+            const cr = await fetch(CL_URL, { method: 'POST', body: cfd });
+            const cd = await cr.json();
+            if (cd.secure_url) {
+                const r = await fetch(`/api/update-profile/${currentUser.matricule}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ photo: cd.secure_url }) });
+                const d = await r.json();
+                if (d.success) { currentUser = d.user; sessionStorage.setItem('currentUser', JSON.stringify(currentUser)); loadProfile(); closeEditModal(); }
+                else alert(d.message);
+            } else { alert('Erreur upload.'); }
+        } catch (e) { alert('Erreur upload.'); }
     }
 }
 
-// ==========================================
-// STATS OPTIMISÉES (2 requêtes au lieu de 1+N)
-// ==========================================
 async function loadStats(matricule) {
     try {
         const r = await fetch(`/api/courses/${matricule}`);
@@ -83,21 +91,16 @@ async function loadStats(matricule) {
     } catch (e) { console.error('Stats error:', e); }
 }
 
-// ==========================================
-// CONNEXION INTERNET
-// ==========================================
 function checkConnection() {
     const indicator = document.getElementById('statusIndicator');
     const text = document.getElementById('statusText');
     const statusEl = document.getElementById('connectionStatus');
     indicator.className = 'status-indicator checking';
     text.textContent = 'Vérification...';
-
     const update = (online) => {
         if (online) { indicator.className = 'status-indicator online'; text.textContent = 'Connecté à Internet'; statusEl.classList.remove('offline'); }
         else { indicator.className = 'status-indicator offline'; text.textContent = 'Pas de connexion'; statusEl.classList.add('offline'); }
     };
-
     fetch('/api/ping').then(r => r.ok ? update(true) : update(false)).catch(() => update(false));
     setInterval(() => { fetch('/api/ping').then(r => r.ok ? update(true) : update(false)).catch(() => update(false)); }, 10000);
 }
