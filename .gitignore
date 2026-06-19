@@ -6,4 +6,4 @@ public/uploads/*
 *.sh
 .env
 update.sh
-start.sh
+start.shupdate.sh
