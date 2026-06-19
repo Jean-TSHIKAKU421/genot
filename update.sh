@@ -12,5 +12,5 @@ clear
 
 
 echo "🔄 Mise à jour de GeNot sur serveur distant..."
-ssh jtt@ssh-jtt.alwaysdata.net "./update.sh"
+ssh jtt@ssh-jtt.alwaysdata.net "./www/genot/update.sh"
 clear
