@@ -9,8 +9,3 @@ git commit -m "Mise à jour automatique"
 git push
 sleep 2
 clear
-
-
-echo "🔄 Mise à jour de GeNot sur serveur distant..."
-ssh jtt@ssh-jtt.alwaysdata.net "./www/genot/update.sh"
-clear
