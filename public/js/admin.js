@@ -1,99 +1,15 @@
-const API = '/api/admin';
-
-async function loadAll() {
-    loadStats();
-    loadVisits();
-}
-
-async function loadStats() {
-    try {
-        const r = await fetch(`${API}/stats`);
-        const d = await r.json();
-        if (d.success) {
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><span class="stat-num">${d.stats.users}</span><span>Utilisateurs</span></div>
-                <div class="stat-card"><span class="stat-num">${d.stats.courses}</span><span>Cours</span></div>
-                <div class="stat-card"><span class="stat-num">${d.stats.notes}</span><span>Notes</span></div>
-                <div class="stat-card"><span class="stat-num">${d.stats.pdfs}</span><span>PDFs</span></div>
-                <div class="stat-card"><span class="stat-num">${d.stats.links}</span><span>Liens</span></div>
-            `;
-        }
-    } catch (e) {}
-}
-
-async function loadVisits() {
-    try {
-        const r = await fetch(`${API}/visits`);
-        const d = await r.json();
-        if (d.success) {
-            document.getElementById('visitsStats').innerHTML = `
-                <div class="stat-card"><span class="stat-num">${d.total}</span><span>Total</span></div>
-                <div class="stat-card"><span class="stat-num">${d.today}</span><span>Aujourd'hui</span></div>
-                <div class="stat-card"><span class="stat-num">${d.week}</span><span>7 jours</span></div>
-            `;
-            
-            const webCount = d.platforms?.find(p => p.platform === 'web')?.count || 0;
-            const mobileCount = d.platforms?.find(p => p.platform === 'mobile')?.count || 0;
-            const total = d.total || 1;
-            
-            document.getElementById('platformsRow').innerHTML = `
-                <div class="platform-col web">
-                    <i class="fas fa-globe"></i>
-                    <h3>Web</h3>
-                    <span class="big-num">${webCount}</span>
-                    <div class="progress-bar"><div class="fill" style="width:${Math.round((webCount/total)*100)}%"></div></div>
-                    <span>${Math.round((webCount/total)*100)}%</span>
-                </div>
-                <div class="platform-col mobile">
-                    <i class="fas fa-mobile-alt"></i>
-                    <h3>Mobile</h3>
-                    <span class="big-num">${mobileCount}</span>
-                    <div class="progress-bar"><div class="fill" style="width:${Math.round((mobileCount/total)*100)}%"></div></div>
-                    <span>${Math.round((mobileCount/total)*100)}%</span>
-                </div>
-            `;
-            
-            if (d.daily) {
-                const max = Math.max(...d.daily.map(x => x.count), 1);
-                document.getElementById('dailyChart').innerHTML = d.daily.map(day => `
-                    <div class="chart-col">
-                        <span>${day.count}</span>
-                        <div class="chart-bar-inner" style="height:${Math.round((day.count/max)*100)}px"></div>
-                        <span>${day.date.substring(5)}</span>
-                    </div>
-                `).join('');
-            }
-        }
-    } catch (e) {}
-}
-
-async function executeSQL() {
-    const query = document.getElementById('sqlQuery').value.trim();
-    if (!query) return;
-    try {
-        const r = await fetch(`${API}/sql`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ query }) });
-        const d = await r.json();
-        document.getElementById('sqlResult').textContent = d.success ? JSON.stringify(d.data, null, 2) : d.message;
-    } catch (e) {}
-}
-
-function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
-    document.getElementById(tab).classList.add('active');
-    if (tab === 'visits') loadVisits();
-}
-// Thème
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    const newTheme = current === 'dark' ? 'light' : 'dark';
-    if (newTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    else document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('theme', newTheme);
-});
-
+// ==========================================
+// admin.js
+// ==========================================
+const API='/api/admin';let monthlyChartInstance=null;
+async function loadAll(){loadStats();loadVisits()}
+async function loadStats(){try{const r=await fetch(`${API}/stats`);const d=await r.json();if(d.success){document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><span class="stat-num">${d.stats.users}</span><span>Utilisateurs</span></div><div class="stat-card"><span class="stat-num">${d.stats.courses}</span><span>Cours</span></div><div class="stat-card"><span class="stat-num">${d.stats.notes}</span><span>Notes</span></div><div class="stat-card"><span class="stat-num">${d.stats.pdfs}</span><span>PDFs</span></div><div class="stat-card"><span class="stat-num">${d.stats.links}</span><span>Liens</span></div>`}}catch(e){}}
+async function loadVisits(){try{const r=await fetch(`${API}/visits`);const d=await r.json();if(d.success){document.getElementById('visitsStats').innerHTML=`<div class="stat-card"><span class="stat-num">${d.total}</span><span>Total</span></div><div class="stat-card"><span class="stat-num">${d.today}</span><span>Aujourd'hui</span></div><div class="stat-card"><span class="stat-num">${d.week}</span><span>7 jours</span></div>`;const wc=d.platforms?.find(p=>p.platform==='web')?.count||0;const mc=d.platforms?.find(p=>p.platform==='mobile')?.count||0;const total=d.total||1;document.getElementById('platformsRow').innerHTML=`<div class="platform-col web"><i class="fas fa-globe"></i><h3>Web</h3><span class="big-num">${wc}</span><div class="progress-bar"><div class="fill" style="width:${Math.round((wc/total)*100)}%"></div></div><span>${Math.round((wc/total)*100)}%</span></div><div class="platform-col mobile"><i class="fas fa-mobile-alt"></i><h3>Mobile</h3><span class="big-num">${mc}</span><div class="progress-bar"><div class="fill" style="width:${Math.round((mc/total)*100)}%"></div></div><span>${Math.round((mc/total)*100)}%</span></div>`}}catch(e){}}
+async function loadMonthlyVisits(){const month=document.getElementById('chartMonth').value;const year=document.getElementById('chartYear').value;try{const r=await fetch(`${API}/visits-monthly?month=${month}&year=${year}`);const d=await r.json();if(d.success&&d.data){if(d.data.every(x=>x.count===0)){document.getElementById('noDataMessage').style.display='block';document.getElementById('monthlyChart').style.display='none'}else{document.getElementById('noDataMessage').style.display='none';document.getElementById('monthlyChart').style.display='block';const ctx=document.getElementById('monthlyChart');if(!ctx)return;if(monthlyChartInstance)monthlyChartInstance.destroy();const labels=d.data.map(x=>x.day);const values=d.data.map(x=>x.count);const isDark=document.documentElement.getAttribute('data-theme')==='dark';monthlyChartInstance=new Chart(ctx,{type:'bar',data:{labels,datasets:[{type:'bar',label:'Visites',data:values,backgroundColor:'rgba(99,102,241,0.6)',borderRadius:6,barThickness:Math.max(10,600/d.daysInMonth),order:2},{type:'line',label:'Tendance',data:values,borderColor:'#10b981',backgroundColor:'transparent',borderWidth:2,pointRadius:3,pointBackgroundColor:'#10b981',tension:0.3,order:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:isDark?'#94a3b8':'#64748b',font:{size:11}}}},scales:{x:{ticks:{color:isDark?'#94a3b8':'#64748b',font:{size:10},maxTicksLimit:31},grid:{display:false}},y:{beginAtZero:true,ticks:{color:isDark?'#94a3b8':'#64748b',font:{size:10},stepSize:1},grid:{color:isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'}}}}})}}}catch(e){}}
+async function executeSQL(){const query=document.getElementById('sqlQuery').value.trim();if(!query)return;const btn=document.getElementById('sqlBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Exécution...';document.getElementById('sqlError').style.display='none';document.getElementById('sqlResult').innerHTML='';try{const r=await fetch(`${API}/sql`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query})});const d=await r.json();if(d.success){document.getElementById('sqlResult').innerHTML=`<p style="color:#10b981;margin-bottom:12px;">${d.data.length} résultat(s)</p><div class="sql-table"><table>${d.data.slice(0,50).map(row=>'<tr>'+Object.values(row).map(v=>'<td>'+(v!==null?v:'<i>NULL</i>')+'</td>').join('')+'</tr>').join('')}</table></div>`}else{document.getElementById('sqlError').style.display='block';document.getElementById('sqlError').textContent=d.message}}catch(e){document.getElementById('sqlError').style.display='block';document.getElementById('sqlError').textContent='Erreur de connexion.'}btn.disabled=false;btn.innerHTML='<i class="fas fa-play"></i> Exécuter'}
+function clearSQL(){document.getElementById('sqlQuery').value='';document.getElementById('sqlResult').innerHTML='';document.getElementById('sqlError').style.display='none'}
+function switchTab(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');document.getElementById(tab).classList.add('active');if(tab==='visits'){loadVisits();const now=new Date();document.getElementById('chartMonth').value=now.getMonth()+1;document.getElementById('chartYear').value=now.getFullYear();loadMonthlyVisits()}}
+const savedTheme=localStorage.getItem('theme');if(savedTheme==='dark')document.documentElement.setAttribute('data-theme','dark');
+document.getElementById('theme-toggle').addEventListener('click',()=>{const current=document.documentElement.getAttribute('data-theme');const newTheme=current==='dark'?'light':'dark';if(newTheme==='dark')document.documentElement.setAttribute('data-theme','dark');else document.documentElement.removeAttribute('data-theme');localStorage.setItem('theme',newTheme)});
+document.addEventListener('DOMContentLoaded',()=>{const sqlInput=document.getElementById('sqlQuery');if(sqlInput)sqlInput.addEventListener('input',()=>{if(sqlInput.value.trim()===''){document.getElementById('sqlResult').innerHTML='';document.getElementById('sqlError').style.display='none'}})});
 loadAll();

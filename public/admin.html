@@ -1,6 +1,3 @@
-<!-- ==========================================
-admin.html
-========================================== -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -13,6 +10,7 @@ admin.html
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>(function(){const t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
     <div class="bg-particles"><div class="particle particle-1"></div><div class="particle particle-2"></div><div class="particle particle-3"></div><div class="bg-grid"></div></div>
@@ -29,6 +27,7 @@ admin.html
             <button class="tab" onclick="switchTab('sql', this)"><i class="fas fa-database"></i> SQL</button>
         </div>
 
+        <!-- DASHBOARD -->
         <div id="tab-dashboard" class="tab-content active">
             <div class="stats-grid">
                 <div class="stat-card" style="border-left:4px solid #6366f1;"><span class="stat-number" id="statUsers">0</span><span class="stat-label">Utilisateurs</span></div>
@@ -39,6 +38,7 @@ admin.html
             </div>
         </div>
 
+        <!-- VISITES -->
         <div id="tab-visits" class="tab-content">
             <div class="stats-row">
                 <div class="stat-card"><span class="stat-number" id="visTotal">0</span><span class="stat-label">Total</span></div>
@@ -62,16 +62,42 @@ admin.html
                 </div>
             </div>
 
-            <h3 class="section-title"><i class="fas fa-calendar-alt"></i> 30 derniers jours</h3>
+            <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Fréquentation mensuelle</h3>
+            <div class="month-selector">
+                <div class="selector-group">
+                    <label>Mois :</label>
+                    <select id="chartMonth" onchange="loadMonthlyVisits()">
+                        <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
+                        <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
+                        <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
+                        <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="selector-group">
+                    <label>Année :</label>
+                    <select id="chartYear" onchange="loadMonthlyVisits()">
+                        <option value="2026">2026</option><option value="2025">2025</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="chart-card">
-                <canvas id="visitsChart"></canvas>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div id="noDataMessage" style="display:none;text-align:center;padding:30px;color:var(--text-secondary);">
+                <i class="fas fa-info-circle" style="font-size:40px;margin-bottom:12px;display:block;"></i>
+                Aucune donnée pour ce mois.
             </div>
         </div>
 
+        <!-- SQL -->
         <div id="tab-sql" class="tab-content">
             <div class="sql-area">
-                <textarea id="sqlQuery" placeholder="SELECT * FROM users..." class="sql-input"></textarea>
-                <button class="btn btn-submit" onclick="executeSQL()" id="sqlBtn"><i class="fas fa-play"></i> Exécuter</button>
+                <textarea id="sqlQuery" placeholder="SELECT * FROM users..." class="sql-input" oninput="if(this.value.trim()==='')document.getElementById('sqlResult').innerHTML=''"></textarea>
+                <div style="display:flex;gap:10px;">
+                    <button class="btn btn-submit" onclick="executeSQL()" id="sqlBtn"><i class="fas fa-play"></i> Exécuter</button>
+                    <button class="btn btn-secondary" onclick="document.getElementById('sqlQuery').value='';document.getElementById('sqlResult').innerHTML='';"><i class="fas fa-broom"></i> Nettoyer</button>
+                </div>
                 <div id="sqlError" class="alert alert-error" style="display:none;"></div>
                 <div id="sqlResult" style="margin-top:16px;"></div>
             </div>
@@ -79,56 +105,6 @@ admin.html
     </div>
 
     <script src="js/theme.js"></script>
-    <script>
-        // ==========================================
-        // ADMIN DASHBOARD
-        // ==========================================
-        function switchTab(tab, btn) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('tab-' + tab).classList.add('active');
-            if (tab === 'visits') loadVisits();
-        }
-
-        async function loadStats() {
-            try { const r = await fetch('/api/admin/stats'); const d = await r.json(); if (d.success && d.stats) { document.getElementById('statUsers').textContent = d.stats.users; document.getElementById('statCourses').textContent = d.stats.courses; document.getElementById('statNotes').textContent = d.stats.notes; document.getElementById('statPdfs').textContent = d.stats.pdfs; document.getElementById('statLinks').textContent = d.stats.links; } } catch (e) {}
-        }
-
-        async function loadVisits() {
-            try { const r = await fetch('/api/admin/visits'); const d = await r.json(); if (d.success) { document.getElementById('visTotal').textContent = d.total; document.getElementById('visToday').textContent = d.today; document.getElementById('visWeek').textContent = d.week; const wc = d.platforms?.find(p => p.platform === 'web')?.count || 0; const mc = d.platforms?.find(p => p.platform === 'mobile')?.count || 0; document.getElementById('platWeb').textContent = wc; document.getElementById('platMobile').textContent = mc; const wp = d.total > 0 ? Math.round((wc / d.total) * 100) : 0; const mp = d.total > 0 ? Math.round((mc / d.total) * 100) : 0; document.getElementById('webFill').style.width = wp + '%'; document.getElementById('mobileFill').style.width = mp + '%'; document.getElementById('webPct').textContent = wp + '%'; document.getElementById('mobilePct').textContent = mp + '%'; drawChart(d.daily || []); } } catch (e) {}
-        }
-
-        let chartInstance = null;
-        function drawChart(daily) {
-            const ctx = document.getElementById('visitsChart'); if (!ctx) return;
-            if (chartInstance) chartInstance.destroy();
-            const labels = daily.map(d => { const dt = new Date(d.date); return dt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }); });
-            const data = daily.map(d => d.count);
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets: [{ data, backgroundColor: '#6366f1', borderRadius: 6, barThickness: 18 }] },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { ticks: { color: isDark ? '#94a3b8' : '#64748b', font: { size: 10 } }, grid: { display: false } },
-                        y: { beginAtZero: true, ticks: { color: isDark ? '#94a3b8' : '#64748b', font: { size: 10 }, stepSize: 1 }, grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' } }
-                    }
-                }
-            });
-        }
-
-        async function executeSQL() {
-            const query = document.getElementById('sqlQuery').value.trim(); if (!query) return;
-            document.getElementById('sqlBtn').disabled = true; document.getElementById('sqlBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exécution...';
-            document.getElementById('sqlError').style.display = 'none'; document.getElementById('sqlResult').innerHTML = '';
-            try { const r = await fetch('/api/admin/sql', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query }) }); const d = await r.json(); if (d.success) { document.getElementById('sqlResult').innerHTML = `<p style="color:#10b981;margin-bottom:12px;">${d.data.length} résultat(s)</p><div class="sql-table"><table>${d.data.slice(0,50).map(row => '<tr>' + Object.values(row).map(v => '<td>' + (v !== null ? v : '<i>NULL</i>') + '</td>').join('') + '</tr>').join('')}</table></div>`; } else { document.getElementById('sqlError').style.display = 'block'; document.getElementById('sqlError').textContent = d.message; } } catch (e) { document.getElementById('sqlError').style.display = 'block'; document.getElementById('sqlError').textContent = 'Erreur de connexion.'; }
-            document.getElementById('sqlBtn').disabled = false; document.getElementById('sqlBtn').innerHTML = '<i class="fas fa-play"></i> Exécuter';
-        }
-
-        loadStats();
-    </script>
+    <script src="js/admin.js"></script>
 </body>
 </html>
