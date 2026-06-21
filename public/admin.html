@@ -10,7 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>(function(){const t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 </head>
 <body>
     <div class="bg-particles"><div class="particle particle-1"></div><div class="particle particle-2"></div><div class="particle particle-3"></div><div class="bg-grid"></div></div>
@@ -18,49 +17,26 @@
         <header class="admin-header">
             <button class="btn-back" onclick="window.location.href='/'"><i class="fas fa-arrow-left"></i> Sortir</button>
             <h1>🛡️ Admin Panel</h1>
-            <button class="btn-refresh" onclick="loadStats()"><i class="fas fa-sync"></i></button>
+            <button class="btn-refresh" onclick="loadAll()"><i class="fas fa-sync"></i></button>
+            <button id="theme-toggle" class="theme-toggle-btn"><span class="icon-sun">☀️</span><span class="icon-moon">🌙</span></button>
         </header>
 
         <div class="admin-tabs">
-            <button class="tab active" onclick="switchTab('dashboard', this)"><i class="fas fa-chart-pie"></i> Dashboard</button>
-            <button class="tab" onclick="switchTab('visits', this)"><i class="fas fa-chart-line"></i> Visites</button>
-            <button class="tab" onclick="switchTab('sql', this)"><i class="fas fa-database"></i> SQL</button>
+            <button class="tab active" onclick="switchTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</button>
+            <button class="tab" onclick="switchTab('visits')"><i class="fas fa-chart-line"></i> Visites</button>
+            <button class="tab" onclick="switchTab('sql')"><i class="fas fa-database"></i> SQL</button>
         </div>
 
         <!-- DASHBOARD -->
-        <div id="tab-dashboard" class="tab-content active">
-            <div class="stats-grid">
-                <div class="stat-card" style="border-left:4px solid #6366f1;"><span class="stat-number" id="statUsers">0</span><span class="stat-label">Utilisateurs</span></div>
-                <div class="stat-card" style="border-left:4px solid #10b981;"><span class="stat-number" id="statCourses">0</span><span class="stat-label">Cours</span></div>
-                <div class="stat-card" style="border-left:4px solid #f59e0b;"><span class="stat-number" id="statNotes">0</span><span class="stat-label">Notes</span></div>
-                <div class="stat-card" style="border-left:4px solid #ef4444;"><span class="stat-number" id="statPdfs">0</span><span class="stat-label">PDFs</span></div>
-                <div class="stat-card" style="border-left:4px solid #06b6d4;"><span class="stat-number" id="statLinks">0</span><span class="stat-label">Liens</span></div>
-            </div>
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid" id="statsGrid"></div>
         </div>
 
         <!-- VISITES -->
-        <div id="tab-visits" class="tab-content">
-            <div class="stats-row">
-                <div class="stat-card"><span class="stat-number" id="visTotal">0</span><span class="stat-label">Total</span></div>
-                <div class="stat-card"><span class="stat-number" id="visToday">0</span><span class="stat-label">Aujourd'hui</span></div>
-                <div class="stat-card"><span class="stat-number" id="visWeek">0</span><span class="stat-label">7 jours</span></div>
-            </div>
-
+        <div id="visits" class="tab-content">
+            <div class="stats-row" id="visitsStats"></div>
             <h3 class="section-title"><i class="fas fa-globe"></i> Plateformes</h3>
-            <div class="platform-cards">
-                <div class="platform-card web">
-                    <div class="platform-header"><i class="fas fa-globe"></i><span>Web</span></div>
-                    <div class="platform-count" id="platWeb">0</div>
-                    <div class="platform-bar"><div class="platform-fill web-fill" id="webFill"></div></div>
-                    <div class="platform-pct" id="webPct">0%</div>
-                </div>
-                <div class="platform-card mobile">
-                    <div class="platform-header"><i class="fas fa-mobile-alt"></i><span>Mobile</span></div>
-                    <div class="platform-count" id="platMobile">0</div>
-                    <div class="platform-bar"><div class="platform-fill mobile-fill" id="mobileFill"></div></div>
-                    <div class="platform-pct" id="mobilePct">0%</div>
-                </div>
-            </div>
+            <div class="platforms-row" id="platformsRow"></div>
 
             <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Fréquentation mensuelle</h3>
             <div class="month-selector">
@@ -80,10 +56,7 @@
                     </select>
                 </div>
             </div>
-
-            <div class="chart-card">
-                <canvas id="monthlyChart"></canvas>
-            </div>
+            <div class="chart-card"><canvas id="monthlyChart"></canvas></div>
             <div id="noDataMessage" style="display:none;text-align:center;padding:30px;color:var(--text-secondary);">
                 <i class="fas fa-info-circle" style="font-size:40px;margin-bottom:12px;display:block;"></i>
                 Aucune donnée pour ce mois.
@@ -91,20 +64,25 @@
         </div>
 
         <!-- SQL -->
-        <div id="tab-sql" class="tab-content">
+        <div id="sql" class="tab-content">
             <div class="sql-area">
-                <textarea id="sqlQuery" placeholder="SELECT * FROM users..." class="sql-input" oninput="if(this.value.trim()==='')document.getElementById('sqlResult').innerHTML=''"></textarea>
+                <textarea id="sqlQuery" placeholder="SELECT * FROM users..." class="sql-input"></textarea>
                 <div style="display:flex;gap:10px;">
                     <button class="btn btn-submit" onclick="executeSQL()" id="sqlBtn"><i class="fas fa-play"></i> Exécuter</button>
-                    <button class="btn btn-secondary" onclick="document.getElementById('sqlQuery').value='';document.getElementById('sqlResult').innerHTML='';"><i class="fas fa-broom"></i> Nettoyer</button>
+                    <button class="btn btn-secondary" onclick="clearSQL()"><i class="fas fa-broom"></i> Nettoyer</button>
                 </div>
                 <div id="sqlError" class="alert alert-error" style="display:none;"></div>
                 <div id="sqlResult" style="margin-top:16px;"></div>
             </div>
         </div>
     </div>
-    <script src="js/admin.js"></script>
+
     <script src="js/theme.js"></script>
-    
+    <script src="js/admin.js"></script>
+    <script>
+        const now = new Date();
+        document.getElementById('chartMonth').value = now.getMonth() + 1;
+        document.getElementById('chartYear').value = now.getFullYear();
+    </script>
 </body>
 </html>
