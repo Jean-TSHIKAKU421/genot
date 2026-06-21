@@ -42,7 +42,7 @@
 .month-selector { display: flex; gap: 16px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
 .selector-group { display: flex; align-items: center; gap: 8px; }
 .selector-group label { font-weight: 600; font-size: 13px; color: var(--text-secondary); }
-.selector-group select { padding: 10px 36px 10px 14px; border-radius: 10px; background: var(--card-bg, #ffffff); border: 2px solid var(--border); color: #1a1a2e; font-size: 13px; font-weight: 500; cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236366f1' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
+.selector-group select { padding: 10px 36px 10px 14px; border-radius: 10px; background: var(--input-bg); border: 2px solid var(--border); color: var(--text-color); font-size: 13px; font-weight: 500; cursor: pointer; appearance: none; -webkit-appearance: none; -moz-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236366f1' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
 .selector-group select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
 .selector-group select option { background: #ffffff; color: #1a1a2e; padding: 10px; }
 
