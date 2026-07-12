@@ -52,6 +52,8 @@
 .btn-icon.share:hover { background: rgba(99,102,241,0.1); color: var(--primary); }
 .btn-icon.download:hover { background: rgba(16,185,129,0.1); color: var(--success); }
 .btn-icon.edit:hover { background: rgba(245,158,11,0.1); color: var(--warning); }
+.btn-icon.visibility { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25); color: var(--primary); }
+.btn-icon.visibility:hover { background: rgba(99,102,241,0.2); border-color: var(--primary); }
 .month-group { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); overflow: hidden; }
 .month-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: var(--transition); user-select: none; }
 .month-header:hover { background: var(--border); }
@@ -115,11 +117,11 @@
 .toolbar-mic-btn:hover { background: var(--primary-hover) !important; transform: scale(1.1); }
 .toolbar-mic-btn.listening { background: #ef4444 !important; animation: micPulse 1.5s ease infinite; }
 .notebook-body { flex: 1; padding: 24px; overflow-y: auto; }
-.notebook-title-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid #e5e7eb; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5em; font-weight: 700; color: #1a1a2e; padding: 0 0 12px 0; margin-bottom: 30px; }
-.notebook-title-input::placeholder { color: #9ca3af; font-weight: 400; font-style: italic; }
+.notebook-title-input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--border); outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.5em; font-weight: 700; color: var(--text-color); padding: 0 0 12px 0; margin-bottom: 30px; }
+.notebook-title-input::placeholder { color: var(--text-muted); font-weight: 400; font-style: italic; }
 .notebook-title-input:focus { border-bottom-color: var(--primary); }
-.notebook-editor { width: 100%; min-height: 400px; background: transparent; border: none; outline: none; font-family: 'Calibri', 'Segoe UI', 'Plus Jakarta Sans', sans-serif; font-size: 17px; line-height: 1.8; color: #1a1a2e; padding: 0; word-wrap: break-word; overflow-y: auto; }
-.notebook-editor:empty::before { content: attr(placeholder); color: #9ca3af; pointer-events: none; }
+.notebook-editor { width: 100%; min-height: 400px; background: transparent; border: none; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; line-height: 1.8; color: var(--text-color); padding: 0; word-wrap: break-word; overflow-y: auto; }
+.notebook-editor:empty::before { content: attr(placeholder); color: var(--text-muted); pointer-events: none; }
 .notebook-editor:focus { outline: none; }
 .notebook-editor p { margin: 0 0 12px 0; line-height: 1.8; font-size: 17px; }
 .notebook-editor ul, .notebook-editor ol { padding-left: 30px; margin: 8px 0 12px 0; }
@@ -134,8 +136,6 @@
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .btn-text { display: inline; }
-.btn-icon.visibility { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25); color: var(--primary); }
-.btn-icon.visibility:hover { background: rgba(99,102,241,0.2); border-color: var(--primary); }
 @media (max-width: 768px) {
     .course-container { padding: 16px; }
     .course-header { flex-wrap: wrap; padding: 16px; gap: 12px; }
