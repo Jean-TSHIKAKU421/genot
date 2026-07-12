@@ -52,7 +52,7 @@
                     <div class="form-group"><label class="form-label">URL <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-globe input-icon"></i><input type="url" id="linkUrl" placeholder="https://..."></div></div>
                 </div>
                 <div id="noteForm" style="display:none;">
-                    <p style="color:var(--text-secondary);text-align:center;">Cliquez sur <strong>"Ajouter"</strong> pour ouvrir le cahier de notes.</p>
+                    <p style="color:var(--text-secondary);text-align:center;">Cliquez sur <strong>"Ouvrir le cahier"</strong> pour écrire une note.</p>
                 </div>
                 <div id="modalMessage" class="alert"></div>
             </div>
@@ -68,9 +68,9 @@
         <div class="modal-card notebook-card">
             <div class="notebook-header">
                 <button class="btn btn-secondary btn-sm" onclick="closeNotebook()"><i class="fas fa-times"></i><span class="btn-text"> Annuler</span></button>
-                <span class="notebook-date" id="noteDate"></span>
                 <button class="btn btn-submit btn-sm" onclick="saveNoteFromNotebook()"><i class="fas fa-save"></i><span class="btn-text"> Enregistrer</span></button>
             </div>
+            <div class="notebook-date-bar" id="noteDate"></div>
             <div class="notebook-body">
                 <input type="text" id="noteTitle" class="note-title-input" placeholder="Titre de la note...">
                 <div class="notebook-toolbar">
@@ -96,9 +96,9 @@
         <div class="modal-card notebook-card">
             <div class="notebook-header">
                 <button class="btn btn-secondary btn-sm" onclick="closeEditNote()"><i class="fas fa-times"></i><span class="btn-text"> Annuler</span></button>
-                <span>✏️ Modifier</span>
                 <button class="btn btn-submit btn-sm" onclick="saveEditedNote()"><i class="fas fa-save"></i><span class="btn-text"> Enregistrer</span></button>
             </div>
+            <div class="notebook-date-bar">✏️ Modifier la note</div>
             <div class="notebook-body">
                 <input type="text" id="editNoteTitle" class="note-title-input" placeholder="Titre de la note...">
                 <div class="notebook-toolbar">
