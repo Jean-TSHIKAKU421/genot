@@ -4,280 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paramètres - GeNot</title>
-    
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/settings.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        (function() {
-            const theme = localStorage.getItem('theme');
-            if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-        })();
-    </script>
+    <script>(function(){const t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 </head>
 <body>
-    <div class="bg-particles">
-        <div class="particle particle-1"></div>
-        <div class="particle particle-2"></div>
-        <div class="particle particle-3"></div>
-        <div class="bg-grid"></div>
-    </div>
-
+    <div class="bg-particles"><div class="particle particle-1"></div><div class="particle particle-2"></div><div class="particle particle-3"></div><div class="bg-grid"></div></div>
     <div class="settings-container">
-        <!-- Header -->
         <header class="settings-header">
-            <button class="btn-back" onclick="window.location.href='/home'">
-                <i class="fas fa-arrow-left"></i>
-            </button>
+            <button class="btn-back" onclick="window.location.href='/home'"><i class="fas fa-arrow-left"></i></button>
             <h1>Paramètres</h1>
             <div class="header-spacer"></div>
         </header>
 
-        <!-- ============ SECTION PROFIL ============ -->
         <div class="settings-card">
             <div class="card-body">
-                <!-- Avatar grand centré avec badge -->
                 <div class="profile-avatar-section">
                     <div class="profile-avatar-wrapper-large" onclick="confirmEdit('photo')">
-                        <div class="profile-avatar-xlarge" id="profileAvatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="avatar-badge">
-                            <i class="fas fa-camera"></i>
-                        </div>
+                        <div class="profile-avatar-xlarge" id="profileAvatar"><i class="fas fa-user"></i></div>
+                        <div class="avatar-badge"><i class="fas fa-camera"></i></div>
                     </div>
                     <h3 class="profile-name-main" id="profileName">---</h3>
                     <span class="profile-matricule-badge" id="profileMatricule">---</span>
                 </div>
 
-                <!-- Grille d'infos 2x2 -->
                 <div class="info-grid">
-                    <div class="info-item editable" onclick="confirmEdit('nom')">
-                        <span class="info-icon"><i class="fas fa-user"></i></span>
-                        <span class="info-value" id="infoNom">---</span>
-                        <span class="edit-hint"><i class="fas fa-pen"></i></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-icon"><i class="fas fa-id-card"></i></span>
-                        <span class="info-value" id="infoMatricule">---</span>
-                    </div>
-                    <div class="info-item editable" onclick="confirmEdit('email')">
-                        <span class="info-icon"><i class="fas fa-envelope"></i></span>
-                        <span class="info-value" id="infoEmail">Non renseigné</span>
-                        <span class="edit-hint"><i class="fas fa-pen"></i></span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-icon"><i class="fas fa-palette"></i></span>
-                        <span class="info-value" id="infoTheme">---</span>
-                    </div>
+                    <div class="info-item editable" onclick="confirmEdit('nom')"><span class="info-icon"><i class="fas fa-user"></i></span><span class="info-value" id="infoNom">---</span><span class="edit-hint"><i class="fas fa-pen"></i></span></div>
+                    <div class="info-item"><span class="info-icon"><i class="fas fa-id-card"></i></span><span class="info-value" id="infoMatricule">---</span></div>
+                    <div class="info-item editable" onclick="confirmEdit('email')"><span class="info-icon"><i class="fas fa-envelope"></i></span><span class="info-value" id="infoEmail">Non renseigné</span><span class="edit-hint"><i class="fas fa-pen"></i></span></div>
+                    <div class="info-item"><span class="info-icon"><i class="fas fa-palette"></i></span><span class="info-value" id="infoTheme">---</span></div>
                 </div>
 
-                <!-- Statistiques -->
                 <h3 class="section-subtitle"><i class="fas fa-chart-bar"></i> Statistiques</h3>
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-icon"><i class="fas fa-book"></i></span>
-                        <span class="stat-number" id="statCourses">0</span>
-                        <span class="stat-label">Cours</span>
+                    <div class="stat-card"><span class="stat-icon"><i class="fas fa-book"></i></span><span class="stat-number" id="statCourses">0</span><span class="stat-label">Cours</span></div>
+                    <div class="stat-card"><span class="stat-icon"><i class="fas fa-sticky-note"></i></span><span class="stat-number" id="statNotes">0</span><span class="stat-label">Notes</span></div>
+                    <div class="stat-card"><span class="stat-icon"><i class="fas fa-file-pdf"></i></span><span class="stat-number" id="statPdfs">0</span><span class="stat-label">PDFs</span></div>
+                    <div class="stat-card"><span class="stat-icon"><i class="fas fa-link"></i></span><span class="stat-number" id="statLinks">0</span><span class="stat-label">Liens</span></div>
+                </div>
+
+                <h3 class="section-subtitle"><i class="fas fa-vault"></i> Coffre-fort</h3>
+                <div id="vaultSection">
+                    <div id="vaultInactive" style="display:none;">
+                        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">Protégez vos contenus masqués avec un mot de passe.</p>
+                        <div class="info-item" style="grid-column:1/-1;cursor:pointer;" onclick="openCreateVaultModal()"><span class="info-icon"><i class="fas fa-lock"></i></span><span class="info-value">🔒 Créer un coffre-fort</span></div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-icon"><i class="fas fa-sticky-note"></i></span>
-                        <span class="stat-number" id="statNotes">0</span>
-                        <span class="stat-label">Notes</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-icon"><i class="fas fa-file-pdf"></i></span>
-                        <span class="stat-number" id="statPdfs">0</span>
-                        <span class="stat-label">PDFs</span>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-icon"><i class="fas fa-link"></i></span>
-                        <span class="stat-number" id="statLinks">0</span>
-                        <span class="stat-label">Liens</span>
+                    <div id="vaultActive" style="display:none;">
+                        <div class="info-item" style="grid-column:1/-1;background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);">
+                            <span class="info-icon"><i class="fas fa-shield-alt"></i></span>
+                            <span class="info-value" style="color:#10b981;">🟢 Coffre-fort actif</span>
+                        </div>
+                        <div style="display:flex;gap:10px;margin-top:10px;">
+                            <button class="btn btn-primary btn-sm" style="flex:1;" onclick="window.location.href='/vault'"><i class="fas fa-door-open"></i> Accéder au coffre</button>
+                            <button class="btn btn-danger btn-sm" style="flex:1;" onclick="disableVault()"><i class="fas fa-unlock"></i> Désactiver</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Statut connexion -->
-                <div class="connection-status" id="connectionStatus">
-                    <span class="status-indicator" id="statusIndicator"></span>
-                    <span class="status-text" id="statusText">Vérification...</span>
-                    <span class="status-dot" id="statusDot"></span>
-                </div>
+                <div class="connection-status" id="connectionStatus"><span class="status-indicator" id="statusIndicator"></span><span class="status-text" id="statusText">Vérification...</span><span class="status-dot" id="statusDot"></span></div>
             </div>
         </div>
 
-        <!-- ============ SECTION À PROPOS ============ -->
         <div class="settings-card">
-            <div class="card-header">
-                <i class="fas fa-info-circle"></i>
-                <h2>À propos de GeNot</h2>
-            </div>
+            <div class="card-header"><i class="fas fa-info-circle"></i><h2>À propos de GeNot</h2></div>
             <div class="card-body">
-                <p class="about-description">
-                    Plateforme de gestion des notes de cours conçue pour les étudiants. 
-                    Centralisez vos cours, notes, supports PDF et liens utiles en un seul endroit. 
-                    Ne perdez plus jamais vos précieuses ressources académiques !
-                </p>
+                <p class="about-description">Plateforme de gestion des notes de cours conçue pour les étudiants. Centralisez vos cours, notes, supports PDF et liens utiles en un seul endroit. Ne perdez plus jamais vos précieuses ressources académiques !</p>
                 <div class="platform-features">
-                    <span><i class="fas fa-check-circle"></i> Gestion des cours</span>
-                    <span><i class="fas fa-check-circle"></i> Notes organisées</span>
-                    <span><i class="fas fa-check-circle"></i> Supports PDF</span>
-                    <span><i class="fas fa-check-circle"></i> Liens utiles</span>
-                    <span><i class="fas fa-check-circle"></i> Corbeille sécurisée</span>
-                    <span><i class="fas fa-check-circle"></i> Mode sombre/clair</span>
+                    <span><i class="fas fa-check-circle"></i> Gestion des cours</span><span><i class="fas fa-check-circle"></i> Notes organisées</span><span><i class="fas fa-check-circle"></i> Supports PDF</span><span><i class="fas fa-check-circle"></i> Liens utiles</span><span><i class="fas fa-check-circle"></i> Corbeille sécurisée</span><span><i class="fas fa-check-circle"></i> Mode sombre/clair</span>
                 </div>
             </div>
         </div>
 
-        <!-- ============ SECTION DÉVELOPPEUR ============ -->
         <div class="settings-card">
-            <div class="card-header">
-                <i class="fas fa-code"></i>
-                <h2>Développeur</h2>
-            </div>
+            <div class="card-header"><i class="fas fa-code"></i><h2>Développeur</h2></div>
             <div class="card-body">
                 <div class="developer-info">
-                    <!-- Diaporama photos dev -->
-                    <div class="dev-avatar-slideshow">
-                        <img id="devSlideImg" src="assets/images/dev1.jpg" alt="Jean TSHIKAKU" class="dev-avatar-large">
-                    </div>
-                    <h3>Jean TSHIKAKU</h3>
-                    <p class="dev-role">Développeur Junior & Étudiant</p>
-                    <p class="dev-bio">
-                        Passionné par la technologie et l'innovation, je crée des solutions 
-                        numériques pour faciliter la vie des étudiants. Ce projet est né de 
-                        mon propre besoin d'organiser mes notes de cours.
-                    </p>
-                    
+                    <div class="dev-avatar-slideshow"><img id="devSlideImg" src="assets/images/dev1.jpg" alt="Jean TSHIKAKU" class="dev-avatar-large"></div>
+                    <h3>Jean TSHIKAKU</h3><p class="dev-role">Développeur Junior & Étudiant</p>
+                    <p class="dev-bio">Passionné par la technologie et l'innovation, je crée des solutions numériques pour faciliter la vie des étudiants. Ce projet est né de mon propre besoin d'organiser mes notes de cours.</p>
                     <h4 class="contact-heading">Me contacter</h4>
-                    
-                    <a href="https://wa.me/243832976093" target="_blank" class="contact-item whatsapp">
-                        <span class="contact-icon"><i class="fab fa-whatsapp"></i></span>
-                        <div class="contact-info">
-                            <span class="contact-label">WhatsApp</span>
-                            <span class="contact-value">+243 83 29 760 93</span>
-                        </div>
-                        <i class="fas fa-external-link-alt"></i>
-                    </a>
-                    
-                    <a href="tel:+243999543276" class="contact-item phone">
-                        <span class="contact-icon"><i class="fas fa-phone-alt"></i></span>
-                        <div class="contact-info">
-                            <span class="contact-label">Appel</span>
-                            <span class="contact-value">+243 99 95 432 76</span>
-                        </div>
-                        <i class="fas fa-external-link-alt"></i>
-                    </a>
-                    
-                    <a href="mailto:jtshikaku@gmail.com" class="contact-item email">
-                        <span class="contact-icon"><i class="fas fa-envelope"></i></span>
-                        <div class="contact-info">
-                            <span class="contact-label">Email</span>
-                            <span class="contact-value">jtshikaku@gmail.com</span>
-                        </div>
-                        <i class="fas fa-external-link-alt"></i>
-                    </a>
-                    
-                    <p class="dev-copyright">
-                        &copy; 2026 Jean TSHIKAKU. Tous droits réservés.
-                    </p>
+                    <a href="https://wa.me/243832976093" target="_blank" class="contact-item whatsapp"><span class="contact-icon"><i class="fab fa-whatsapp"></i></span><div class="contact-info"><span class="contact-label">WhatsApp</span><span class="contact-value">+243 83 29 760 93</span></div><i class="fas fa-external-link-alt"></i></a>
+                    <a href="tel:+243999543276" class="contact-item phone"><span class="contact-icon"><i class="fas fa-phone-alt"></i></span><div class="contact-info"><span class="contact-label">Appel</span><span class="contact-value">+243 99 95 432 76</span></div><i class="fas fa-external-link-alt"></i></a>
+                    <a href="mailto:jtshikaku@gmail.com" class="contact-item email"><span class="contact-icon"><i class="fas fa-envelope"></i></span><div class="contact-info"><span class="contact-label">Email</span><span class="contact-value">jtshikaku@gmail.com</span></div><i class="fas fa-external-link-alt"></i></a>
+                    <p class="dev-copyright">&copy; 2026 Jean TSHIKAKU. Tous droits réservés.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Bouton déconnexion -->
-        <button class="btn-logout" onclick="handleLogout()">
-            <i class="fas fa-sign-out-alt"></i> Se déconnecter
-        </button>
+        <button class="btn-logout" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Se déconnecter</button>
     </div>
 
-    <!-- Modal édition -->
-    <div id="editModal" class="modal-overlay" style="display: none;">
+    <div id="editModal" class="modal-overlay" style="display:none;">
         <div class="modal-card">
-            <div class="modal-header">
-                <h2 id="editModalTitle">Modifier</h2>
-                <button class="modal-close" onclick="closeEditModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
+            <div class="modal-header"><h2 id="editModalTitle">Modifier</h2><button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div id="editFormNom" class="edit-form" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label">Nouveau nom</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text" id="editNom" placeholder="Votre nom complet">
-                        </div>
-                    </div>
-                </div>
-                <div id="editFormEmail" class="edit-form" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label">Nouvel email</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-envelope input-icon"></i>
-                            <input type="email" id="editEmail" placeholder="Votre email">
-                        </div>
-                    </div>
-                </div>
-                <div id="editFormTheme" class="edit-form" style="display: none;">
-                    <div class="theme-options">
-                        <label class="theme-option" onclick="selectTheme('light')">
-                            <input type="radio" name="themeChoice" value="light">
-                            <span class="theme-option-content">
-                                <span class="theme-icon">☀️</span>
-                                <span>Mode Clair</span>
-                            </span>
-                        </label>
-                        <label class="theme-option" onclick="selectTheme('dark')">
-                            <input type="radio" name="themeChoice" value="dark">
-                            <span class="theme-option-content">
-                                <span class="theme-icon">🌙</span>
-                                <span>Mode Sombre</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-                <div id="editFormPhoto" class="edit-form" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label">Nouvelle photo</label>
-                        <div class="input-wrapper">
-                            <i class="fas fa-image input-icon"></i>
-                            <input type="file" id="editPhoto" accept="image/*">
-                        </div>
-                        <small class="hint">JPG, PNG, GIF ou WEBP - Max 3MB</small>
-                    </div>
-                </div>
+                <div id="editFormNom" class="edit-form" style="display:none;"><div class="form-group"><label class="form-label">Nouveau nom</label><div class="input-wrapper"><i class="fas fa-user input-icon"></i><input type="text" id="editNom" placeholder="Votre nom complet"></div></div></div>
+                <div id="editFormEmail" class="edit-form" style="display:none;"><div class="form-group"><label class="form-label">Nouvel email</label><div class="input-wrapper"><i class="fas fa-envelope input-icon"></i><input type="email" id="editEmail" placeholder="Votre email"></div></div></div>
+                <div id="editFormTheme" class="edit-form" style="display:none;"><div class="theme-options"><label class="theme-option" onclick="selectTheme('light')"><input type="radio" name="themeChoice" value="light"><span class="theme-option-content"><span class="theme-icon">☀️</span><span>Mode Clair</span></span></label><label class="theme-option" onclick="selectTheme('dark')"><input type="radio" name="themeChoice" value="dark"><span class="theme-option-content"><span class="theme-icon">🌙</span><span>Mode Sombre</span></span></label></div></div>
+                <div id="editFormPhoto" class="edit-form" style="display:none;"><div class="form-group"><label class="form-label">Nouvelle photo</label><div class="input-wrapper"><i class="fas fa-image input-icon"></i><input type="file" id="editPhoto" accept="image/*"></div><small class="hint">JPG, PNG, GIF ou WEBP - Max 3MB</small></div></div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeEditModal()">Annuler</button>
-                <button class="btn btn-submit" id="saveEditBtn" onclick="saveEdit()">
-                    <i class="fas fa-save"></i> Enregistrer
-                </button>
-            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeEditModal()">Annuler</button><button class="btn btn-submit" id="saveEditBtn" onclick="saveEdit()"><i class="fas fa-save"></i> Enregistrer</button></div>
         </div>
     </div>
 
-    <!-- Script diaporama dev -->
-    <script>
-        const devImages = [
-            'assets/images/dev1.jpg',
-            'assets/images/dev2.jpg',
-            'assets/images/dev3.jpg',
-            'assets/images/dev4.jpg',
-            'assets/images/dev5.jpg',
-            'assets/images/dev6.jpg'
-        ];
-        let devImageIndex = 0;
-        setInterval(() => {
-            devImageIndex = (devImageIndex + 1) % devImages.length;
-            const img = document.getElementById('devSlideImg');
-            if (img) img.src = devImages[devImageIndex];
-        }, 4000);
-    </script>
+    <div id="vaultPasswordModal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header"><h2>🔒 Vérification</h2><button class="modal-close" onclick="closeVaultPasswordModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;" id="vaultModalMessage">Entrez le mot de passe du coffre-fort</p>
+                <div class="input-wrapper"><i class="fas fa-lock input-icon"></i><input type="password" id="vaultModalPassword" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')submitVaultPassword()"></div>
+                <div id="vaultModalError" class="alert alert-error" style="display:none;"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeVaultPasswordModal()">Annuler</button><button class="btn btn-submit" onclick="submitVaultPassword()">Valider</button></div>
+        </div>
+    </div>
 
+    <div id="createVaultModal" class="modal-overlay" style="display:none;">
+        <div class="modal-card">
+            <div class="modal-header"><h2>🔒 Créer un coffre-fort</h2><button class="modal-close" onclick="closeCreateVaultModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body">
+                <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">Choisissez un mot de passe (min 4 caractères)</p>
+                <div class="input-wrapper"><i class="fas fa-lock input-icon"></i><input type="password" id="createVaultPassword" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')submitCreateVault()"></div>
+                <div id="createVaultError" class="alert alert-error" style="display:none;"></div>
+            </div>
+            <div class="modal-footer"><button class="btn btn-secondary" onclick="closeCreateVaultModal()">Annuler</button><button class="btn btn-submit" onclick="submitCreateVault()">Créer</button></div>
+        </div>
+    </div>
+
+    <script>
+        const devImages=['assets/images/dev1.jpg','assets/images/dev2.jpg','assets/images/dev3.jpg','assets/images/dev4.jpg','assets/images/dev5.jpg','assets/images/dev6.jpg'];
+        let devImageIndex=0;
+        setInterval(()=>{devImageIndex=(devImageIndex+1)%devImages.length;const img=document.getElementById('devSlideImg');if(img)img.src=devImages[devImageIndex]},4000);
+    </script>
     <script src="js/theme.js"></script>
     <script src="js/settings.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/modal.js"></script>
 </body>
 </html>

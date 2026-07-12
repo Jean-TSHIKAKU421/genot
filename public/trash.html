@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corbeille - Gestion Notes</title>
-    
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/trash.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 </head>
 <body>
     <div class="bg-particles">
@@ -17,44 +17,27 @@
         <div class="particle particle-3"></div>
         <div class="bg-grid"></div>
     </div>
-
     <div class="trash-container">
         <header class="trash-header">
-            <button class="btn-back" onclick="window.location.href='/home'">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <div class="header-title">
-                <h1><i class="fas fa-trash-alt"></i> Corbeille</h1>
-                <span id="trashCount"></span>
-            </div>
-            <button class="btn btn-danger btn-sm" onclick="emptyTrash()">
-                <i class="fas fa-trash"></i> Vider la corbeille
-            </button>
+            <button class="btn-back" onclick="window.location.href='/home'"><i class="fas fa-arrow-left"></i></button>
+            <div class="header-title"><h1><i class="fas fa-trash-alt"></i> Corbeille</h1></div>
+            <button class="btn btn-danger btn-sm" onclick="emptyTrash()"><i class="fas fa-trash"></i> Vider tout</button>
         </header>
-
+        <div class="trash-count-bar" id="trashCountBar"></div>
         <div id="trashContent">
-            <div class="trash-section">
+            <div class="trash-section" id="coursesSection" style="display:none;">
                 <h2>📚 Cours supprimés</h2>
                 <div id="trashCourses" class="trash-list"></div>
             </div>
-            <div class="trash-section">
+            <div class="trash-section" id="notesSection" style="display:none;">
                 <h2>📝 Notes supprimées</h2>
                 <div id="trashNotes" class="trash-list"></div>
             </div>
         </div>
     </div>
-
-    <!-- Boutons scroll -->
-    <div class="scroll-nav">
-        <button class="scroll-btn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Haut de page">
-            <i class="fas fa-chevron-up"></i>
-        </button>
-        <button class="scroll-btn" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})" title="Bas de page">
-            <i class="fas fa-chevron-down"></i>
-        </button>
-    </div>
-
     <script src="js/theme.js"></script>
     <script src="js/trash.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/modal.js"></script>
 </body>
 </html>

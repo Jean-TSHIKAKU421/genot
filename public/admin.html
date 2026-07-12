@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>(function(){const t=localStorage.getItem('theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 </head>
 <body>
     <div class="bg-particles"><div class="particle particle-1"></div><div class="particle particle-2"></div><div class="particle particle-3"></div><div class="bg-grid"></div></div>
@@ -27,50 +28,25 @@
             <button class="tab" onclick="switchTab('sql')"><i class="fas fa-database"></i> SQL</button>
         </div>
 
-        <!-- DASHBOARD -->
-        <div id="dashboard" class="tab-content active">
-            <div class="stats-grid" id="statsGrid"></div>
-        </div>
+        <div id="dashboard" class="tab-content active"><div class="stats-grid" id="statsGrid"></div></div>
 
-        <!-- VISITES -->
         <div id="visits" class="tab-content">
             <div class="stats-row" id="visitsStats"></div>
             <h3 class="section-title"><i class="fas fa-globe"></i> Plateformes</h3>
             <div class="platforms-row" id="platformsRow"></div>
-
             <h3 class="section-title"><i class="fas fa-calendar-alt"></i> Fréquentation mensuelle</h3>
             <div class="month-selector">
-                <div class="selector-group">
-                    <label>Mois :</label>
-                    <select id="chartMonth" onchange="loadMonthlyVisits()">
-                        <option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option>
-                        <option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option>
-                        <option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option>
-                        <option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option>
-                    </select>
-                </div>
-                <div class="selector-group">
-                    <label>Année :</label>
-                    <select id="chartYear" onchange="loadMonthlyVisits()">
-                        <option value="2026">2026</option><option value="2025">2025</option>
-                    </select>
-                </div>
+                <div class="selector-group"><label>Mois :</label><select id="chartMonth" onchange="loadMonthlyVisits()"><option value="1">Janvier</option><option value="2">Février</option><option value="3">Mars</option><option value="4">Avril</option><option value="5">Mai</option><option value="6">Juin</option><option value="7">Juillet</option><option value="8">Août</option><option value="9">Septembre</option><option value="10">Octobre</option><option value="11">Novembre</option><option value="12">Décembre</option></select></div>
+                <div class="selector-group"><label>Année :</label><select id="chartYear" onchange="loadMonthlyVisits()"><option value="2026">2026</option><option value="2025">2025</option></select></div>
             </div>
             <div class="chart-card"><canvas id="monthlyChart"></canvas></div>
-            <div id="noDataMessage" style="display:none;text-align:center;padding:30px;color:var(--text-secondary);">
-                <i class="fas fa-info-circle" style="font-size:40px;margin-bottom:12px;display:block;"></i>
-                Aucune donnée pour ce mois.
-            </div>
+            <div id="noDataMessage" style="display:none;text-align:center;padding:30px;color:var(--text-secondary);"><i class="fas fa-info-circle" style="font-size:40px;margin-bottom:12px;display:block;"></i>Aucune donnée pour ce mois.</div>
         </div>
 
-        <!-- SQL -->
         <div id="sql" class="tab-content">
             <div class="sql-area">
                 <textarea id="sqlQuery" placeholder="SELECT * FROM users..." class="sql-input"></textarea>
-                <div style="display:flex;gap:10px;">
-                    <button class="btn btn-submit" onclick="executeSQL()" id="sqlBtn"><i class="fas fa-play"></i> Exécuter</button>
-                    <button class="btn btn-secondary" onclick="clearSQL()"><i class="fas fa-broom"></i> Nettoyer</button>
-                </div>
+                <div style="display:flex;gap:10px;"><button class="btn btn-submit" onclick="executeSQL()" id="sqlBtn"><i class="fas fa-play"></i> Exécuter</button><button class="btn btn-secondary" onclick="clearSQL()"><i class="fas fa-broom"></i> Nettoyer</button></div>
                 <div id="sqlError" class="alert alert-error" style="display:none;"></div>
                 <div id="sqlResult" style="margin-top:16px;"></div>
             </div>
@@ -84,5 +60,7 @@
         document.getElementById('chartMonth').value = now.getMonth() + 1;
         document.getElementById('chartYear').value = now.getFullYear();
     </script>
+    <script src="js/animations.js"></script>
+    <script src="js/modal.js"></script>
 </body>
 </html>

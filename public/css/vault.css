@@ -1,0 +1,48 @@
+.vault-login-container { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+.vault-login-card { background: var(--glass); backdrop-filter: blur(30px); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 40px 32px; text-align: center; max-width: 420px; width: 100%; }
+.vault-icon { font-size: 60px; margin-bottom: 16px; }
+.vault-login-card h1 { font-size: 1.5em; font-weight: 700; margin-bottom: 8px; }
+.vault-login-card p { font-size: 0.9em; color: var(--text-secondary); margin-bottom: 24px; }
+.vault-back-link { display: inline-block; margin-top: 16px; color: var(--text-secondary); text-decoration: none; font-size: 0.85em; }
+.vault-back-link:hover { color: var(--primary); }
+.input-wrapper { position: relative; margin-bottom: 16px; }
+.input-wrapper input { width: 100%; padding: 14px 16px 14px 44px; background: var(--input-bg); border: 2px solid var(--border); border-radius: var(--radius); color: var(--text-color); font-size: 1em; }
+.input-wrapper input:focus { border-color: var(--primary); outline: none; }
+.input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+.vault-container { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 24px; }
+.vault-header { display: flex; align-items: center; gap: 12px; background: var(--glass); backdrop-filter: blur(30px); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 16px 20px; margin-bottom: 20px; }
+.vault-header h1 { font-size: 1.2em; font-weight: 700; flex: 1; }
+.vault-count { font-size: 0.8em; color: var(--text-secondary); background: var(--input-bg); padding: 4px 10px; border-radius: 20px; }
+.btn-back { width: 40px; height: 40px; border-radius: 50%; background: var(--input-bg); border: 1px solid var(--border); color: var(--text-color); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+.vault-tabs { display: flex; gap: 4px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 4px; margin-bottom: 20px; }
+.vault-tabs .tab { flex: 1; padding: 10px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; border-radius: var(--radius); font-weight: 600; font-size: 13px; }
+.vault-tabs .tab.active { background: var(--primary); color: #fff; }
+.vault-tab-content { display: none; }
+.vault-tab-content.active { display: block; }
+
+.vault-item { background: var(--glass); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 8px; }
+.vault-item-info { flex: 1; }
+.vault-item-title { font-weight: 600; font-size: 0.95em; }
+.vault-item-meta { font-size: 0.8em; color: var(--text-muted); margin-top: 4px; }
+.vault-item-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 50px; margin-bottom: 12px; }
+
+.btn { padding: 10px 16px; border: none; border-radius: var(--radius); font-size: 0.9em; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.btn-submit { background: var(--primary); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-sm { padding: 8px 12px; font-size: 0.8em; }
+.alert-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: var(--danger); padding: 10px 14px; border-radius: var(--radius); font-size: 0.85em; }
+
+@media (max-width: 600px) {
+    .vault-container { padding: 10px; }
+    .vault-header { padding: 12px 14px; }
+    .vault-header h1 { font-size: 1em; }
+    .vault-login-card { padding: 30px 20px; }
+    .vault-item-actions { flex-wrap: wrap; }
+    .vault-item-actions .btn { flex: 1; justify-content: center; min-width: 80px; }
+}
