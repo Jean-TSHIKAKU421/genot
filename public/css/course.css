@@ -252,3 +252,12 @@
     .note-item .item-actions { gap: 10px; padding-top: 6px; }
     .note-item .btn-icon { width: 32px; height: 32px; font-size: 12px; }
 }
+.btn-text { display: inline; }
+@media (max-width: 600px) {
+    .btn-text { display: none; }
+    .notebook-header .btn { padding: 8px 10px; min-width: auto; }
+    .notebook-header .btn-sm { padding: 6px 10px; }
+    .notebook-toolbar button { width: 30px; height: 30px; font-size: 12px; }
+    .notebook-title-input { font-size: 1em; }
+    .notebook-editor { min-height: 200px; font-size: 14px; }
+}
