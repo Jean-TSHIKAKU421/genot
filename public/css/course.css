@@ -117,9 +117,9 @@
 .toolbar-mic-btn:hover { background: var(--primary-hover) !important; transform: scale(1.1); }
 .toolbar-mic-btn.listening { background: #ef4444 !important; animation: micPulse 1.5s ease infinite; }
 .notebook-body { flex: 1; padding: 24px; overflow-y: auto; }
-.notebook-title-input { width: 100%; background: transparent; border: none; border-bottom: 3px solid var(--primary); outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.8em; font-weight: 700; color: var(--text-color); padding: 8px 0 14px 0; margin-bottom: 20px; }
-.notebook-title-input::placeholder { color: var(--text-muted); font-weight: 400; font-style: italic; }
-.notebook-title-input:focus { border-bottom-color: var(--primary-light); }
+.notebook-title-input { width: 100%; background: transparent !important; border: none !important; border-bottom: 3px solid var(--primary) !important; outline: none !important; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.8em !important; font-weight: 700 !important; color: var(--text-color) !important; padding: 10px 0 14px 0 !important; margin-bottom: 20px !important; }
+.notebook-title-input::placeholder { color: var(--text-muted) !important; font-weight: 400; font-style: italic; opacity: 0.6; }
+.notebook-title-input:focus { border-bottom-color: var(--primary-light) !important; }
 .notebook-editor { width: 100%; min-height: 400px; background: transparent; border: none; outline: none; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; line-height: 1.8; color: var(--text-color); padding: 0; word-wrap: break-word; overflow-y: auto; }
 .notebook-editor:empty::before { content: attr(placeholder); color: var(--text-muted); pointer-events: none; }
 .notebook-editor:focus { outline: none; }
@@ -149,7 +149,7 @@
     .btn-icon { width: 32px; height: 32px; font-size: 12px; }
     .notebook-card { max-width: 100% !important; }
     .notebook-body { padding: 16px; }
-    .notebook-title-input { font-size: 1.3em; margin-bottom: 24px; }
+    .notebook-title-input { font-size: 1.3em !important; margin-bottom: 24px; }
     .notebook-editor { min-height: 300px; font-size: 15px; }
     .notebook-editor p { font-size: 15px; }
     .notebook-editor ul li, .notebook-editor ol li { font-size: 15px; }
@@ -182,7 +182,7 @@
     .notebook-toolbar button { width: 28px; height: 28px; font-size: 0.75em; }
     .toolbar-separator { margin: 0 2px; }
     .notebook-body { padding: 10px; }
-    .notebook-title-input { font-size: 1.1em; margin-bottom: 18px; }
+    .notebook-title-input { font-size: 1.1em !important; margin-bottom: 18px; }
     .notebook-editor { min-height: 240px; font-size: 14px; }
     .notebook-editor p { font-size: 14px; }
     .notebook-editor ul li, .notebook-editor ol li { font-size: 14px; }
