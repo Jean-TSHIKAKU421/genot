@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cours - GeNot</title>
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/course.css">
@@ -20,30 +20,26 @@
             <span class="course-meta" id="courseMeta">0 élément(s)</span>
             <button class="btn-add" onclick="openAddModal()"><i class="fas fa-plus"></i></button>
         </header>
-        <div class="search-bar">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" placeholder="🔍 Rechercher...">
-            <button class="btn-search-clear" id="clearSearch" style="display:none;" onclick="clearSearch()"><i class="fas fa-times"></i></button>
-        </div>
+        <div class="search-bar"><i class="fas fa-search search-icon"></i><input type="text" id="searchInput" placeholder="Rechercher..."><button class="btn-search-clear" id="clearSearch" style="display:none;" onclick="clearSearch()"><i class="fas fa-times"></i></button></div>
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('supports')">📄 Supports</button>
-            <button class="tab" onclick="switchTab('links')">🔗 Liens</button>
-            <button class="tab" onclick="switchTab('notes')">📝 Notes</button>
-            <button class="tab" onclick="switchTab('audios')">🎙️ Audios</button>
+            <button class="tab active" onclick="switchTab('supports')"><i class="fas fa-file-pdf"></i> Supports</button>
+            <button class="tab" onclick="switchTab('links')"><i class="fas fa-link"></i> Liens</button>
+            <button class="tab" onclick="switchTab('notes')"><i class="fas fa-sticky-note"></i> Notes</button>
+            <button class="tab" onclick="switchTab('audios')"><i class="fas fa-microphone"></i> Audios</button>
         </div>
         <div class="sections">
-            <div id="supportsSection" class="section active"><div id="supportsList" class="list"></div><div id="noSupports" class="empty-state" style="display:none;"><span class="empty-icon">📭</span><p>Aucun support</p></div></div>
-            <div id="linksSection" class="section"><div id="linksList" class="list"></div><div id="noLinks" class="empty-state" style="display:none;"><span class="empty-icon">📭</span><p>Aucun lien</p></div></div>
-            <div id="notesSection" class="section"><div id="notesByMonth"></div><div id="noNotes" class="empty-state" style="display:none;"><span class="empty-icon">📭</span><p>Aucune note</p></div></div>
-            <div id="audiosSection" class="section"><div id="audiosList" class="list"></div><div id="noAudios" class="empty-state" style="display:none;"><span class="empty-icon">🎙️</span><p>Aucun audio</p></div></div>
+            <div id="supportsSection" class="section active"><div id="supportsList" class="list"></div><div id="noSupports" class="empty-state" style="display:none;"><span class="empty-icon"><i class="fas fa-file-pdf"></i></span><p>Aucun support</p></div></div>
+            <div id="linksSection" class="section"><div id="linksList" class="list"></div><div id="noLinks" class="empty-state" style="display:none;"><span class="empty-icon"><i class="fas fa-link"></i></span><p>Aucun lien</p></div></div>
+            <div id="notesSection" class="section"><div id="notesByMonth"></div><div id="noNotes" class="empty-state" style="display:none;"><span class="empty-icon"><i class="fas fa-sticky-note"></i></span><p>Aucune note</p></div></div>
+            <div id="audiosSection" class="section"><div id="audiosList" class="list"></div><div id="noAudios" class="empty-state" style="display:none;"><span class="empty-icon"><i class="fas fa-microphone"></i></span><p>Aucun audio</p></div></div>
         </div>
     </div>
 
+    <!-- Modal Ajouter -->
     <div id="addModal" class="modal-overlay" style="display:none;">
         <div class="modal-card">
-            <div class="modal-header"><h2>Ajouter un élément</h2><button class="modal-close" onclick="closeAddModal()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-header"><h2><i class="fas fa-plus-circle"></i> Ajouter un élément</h2><button class="modal-close" onclick="closeAddModal()"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
-                <div class="form-group"><label class="form-label">Type</label><div class="input-wrapper select-wrapper"><i class="fas fa-list input-icon"></i><select id="itemType" onchange="handleTypeChange()"><option value="">-- Choisir --</option><option value="pdf">📄 PDF / Document</option><option value="link">🔗 Lien</option><option value="note">📝 Note</option><option value="audio">🎙️ Audio</option></select><i class="fas fa-chevron-down select-arrow"></i></div></div>
                 <div id="pdfForm" style="display:none;">
                     <div class="form-group"><label class="form-label">Titre <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-file-pdf input-icon"></i><input type="text" id="pdfTitle" placeholder="Titre du document"></div></div>
                     <div class="form-group"><label class="form-label">Fichier <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-upload input-icon"></i><input type="file" id="pdfFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif"></div><small class="hint">PDF, DOC, PPT, TXT, images - Max 10MB</small></div>
@@ -52,9 +48,7 @@
                     <div class="form-group"><label class="form-label">Titre <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-link input-icon"></i><input type="text" id="linkTitle" placeholder="Nom du lien"></div></div>
                     <div class="form-group"><label class="form-label">URL <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-globe input-icon"></i><input type="url" id="linkUrl" placeholder="https://..."></div></div>
                 </div>
-                <div id="noteForm" style="display:none;">
-                    <p style="color:var(--text-secondary);text-align:center;">Cliquez sur <strong>"Ouvrir le cahier"</strong> pour écrire une note.</p>
-                </div>
+                <div id="noteForm" style="display:none;"><p style="color:var(--text-secondary);text-align:center;">Cliquez sur <strong>Ouvrir le cahier</strong> pour écrire une note.</p></div>
                 <div id="audioForm" style="display:none;">
                     <div class="form-group"><label class="form-label">Titre <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-microphone input-icon"></i><input type="text" id="audioTitle" placeholder="Titre de l'audio"></div></div>
                     <div class="form-group"><label class="form-label">Fichier audio <span class="required">*</span></label><div class="input-wrapper"><i class="fas fa-upload input-icon"></i><input type="file" id="audioFile" accept="audio/*"></div><small class="hint">MP3, WAV, OGG, AAC - Max 20MB</small></div>
@@ -68,6 +62,20 @@
         </div>
     </div>
 
+    <!-- Modal Picker Type -->
+    <div id="typePickerModal" class="modal-overlay" style="display:none;z-index:1001;">
+        <div class="modal-card type-picker-card">
+            <div class="modal-header"><h2><i class="fas fa-plus-circle"></i> Type d'élément</h2><button class="modal-close" onclick="closeTypePicker()"><i class="fas fa-times"></i></button></div>
+            <div class="modal-body type-picker-body">
+                <button class="type-pick-btn" onclick="selectItemType('pdf')"><div class="type-pick-icon" style="background:rgba(239,68,68,0.1);color:#ef4444;"><i class="fas fa-file-pdf"></i></div><div><strong>PDF / Document</strong><small>Importer un fichier</small></div></button>
+                <button class="type-pick-btn" onclick="selectItemType('link')"><div class="type-pick-icon" style="background:rgba(6,182,212,0.1);color:#06b6d4;"><i class="fas fa-link"></i></div><div><strong>Lien</strong><small>Ajouter une URL</small></div></button>
+                <button class="type-pick-btn" onclick="selectItemType('note')"><div class="type-pick-icon" style="background:rgba(16,185,129,0.1);color:#10b981;"><i class="fas fa-sticky-note"></i></div><div><strong>Note</strong><small>Écrire du texte</small></div></button>
+                <button class="type-pick-btn" onclick="selectItemType('audio')"><div class="type-pick-icon" style="background:rgba(168,85,247,0.1);color:#a855f7;"><i class="fas fa-microphone"></i></div><div><strong>Audio</strong><small>Fichier audio</small></div></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cahier -->
     <div id="notebookModal" class="modal-overlay" style="display:none;">
         <div class="modal-card notebook-card">
             <div class="notebook-header">
@@ -95,13 +103,14 @@
         </div>
     </div>
 
+    <!-- Modal Édition Note -->
     <div id="editNoteModal" class="modal-overlay" style="display:none;">
         <div class="modal-card notebook-card">
             <div class="notebook-header">
                 <button class="btn btn-secondary btn-sm" onclick="closeEditNote()"><i class="fas fa-times"></i><span class="btn-text"> Annuler</span></button>
                 <button class="btn btn-submit btn-sm" onclick="saveEditedNote()"><i class="fas fa-save"></i><span class="btn-text"> Enregistrer</span></button>
             </div>
-            <div class="notebook-date-bar">✏️ Modifier la note</div>
+            <div class="notebook-date-bar"><i class="fas fa-edit"></i> Modifier la note</div>
             <div class="notebook-body">
                 <input type="text" id="editNoteTitle" class="note-title-input" placeholder="Titre de la note...">
                 <div class="notebook-toolbar">

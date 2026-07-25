@@ -104,6 +104,12 @@
 .theme-option-content { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--input-bg); border: 2px solid var(--border); border-radius: var(--radius); transition: var(--transition); }
 .theme-option input:checked + .theme-option-content { border-color: var(--primary); background: rgba(99,102,241,0.08); }
 .theme-icon { font-size: 1.3em; }
+
+.photo-zoom-container{position:relative;max-width:90vw;max-height:90vh}
+.photo-zoom-img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:12px;cursor:zoom-in;transition:transform .3s ease}
+.photo-zoom-img.zoomed{transform:scale(2);cursor:zoom-out}
+.photo-zoom-close{position:absolute;top:-40px;right:0;background:rgba(0,0,0,.6);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center}
+
 @media (max-width: 600px) {
     .settings-container { padding: 10px; }
     .settings-header { padding: 14px 16px; border-radius: var(--radius-lg); }
