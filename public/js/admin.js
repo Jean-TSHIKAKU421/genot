@@ -1,19 +1,21 @@
 // ==========================================
 // admin.js
 // ==========================================
-const API='/api/admin';let monthlyChartInstance=null,logsPage=0,logsTotalPages=0,totpVerified=false;
+const API='/api/admin';let monthlyChartInstance=null,logsPage=0,logsTotalPages=0,totpValidatedCode='';
 
 function apiFetch(url, options = {}) {
     const token = sessionStorage.getItem('token');
     const headers = { ...options.headers };
     if (token) headers['Authorization'] = `Bearer ${token}`;
-    if (totpVerified) { const code = document.getElementById('totpInput')?.value; if (code) headers['x-totp'] = code; }
+    if (totpValidatedCode) headers['x-totp'] = totpValidatedCode;
     if (!(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
     return fetch(url, { ...options, headers }).then(r => {
         if (r.status === 403) return r.json().then(d => { if (d.requireTOTP) { showTOTPModal(); throw new Error('TOTP required'); } return r; });
         return r;
     });
 }
+
+function logout(){ sessionStorage.removeItem('currentUser'); sessionStorage.removeItem('token'); totpValidatedCode=''; window.location.href = '/login'; }
 
 function showTOTPModal() { document.getElementById('totpModal').style.display = 'flex'; document.getElementById('totpInput').value = ''; document.getElementById('totpError').style.display = 'none'; setTimeout(() => document.getElementById('totpInput').focus(), 300); }
 async function verifyTOTP() {
@@ -22,7 +24,7 @@ async function verifyTOTP() {
     try {
         const r = await fetch(`${API}/totp/verify`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ matricule: JSON.parse(sessionStorage.getItem('currentUser')).matricule, token: code }) });
         const d = await r.json();
-        if (d.success) { totpVerified = true; document.getElementById('totpModal').style.display = 'none'; loadAll(); }
+        if (d.success) { totpValidatedCode = code; document.getElementById('totpModal').style.display = 'none'; loadAll(); }
         else { err.textContent = 'Code invalide.'; err.style.display = 'block'; }
     } catch (e) { err.textContent = 'Erreur de vérification.'; err.style.display = 'block'; }
 }
